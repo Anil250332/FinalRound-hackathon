@@ -84,7 +84,7 @@ export const LandingNavbar: React.FC = () => {
             </div>
             <div>
               <span className={`font-black tracking-tight text-slate-900 transition-all ${isScrolled ? 'text-lg' : 'text-xl'}`}>
-                Pulse<span cla">Relay</span>
+                Pulse<span>Relay</span>
               </span>
             </div>
           </Link>
@@ -116,7 +116,7 @@ export const LandingNavbar: React.FC = () => {
                   : 'px-5 py-2.5 rounded-2xl'
               }`}
             >
-              <span>Launch Dashboard</span>
+              <span> Dashboard</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>

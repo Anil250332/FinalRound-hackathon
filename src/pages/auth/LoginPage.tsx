@@ -185,10 +185,7 @@ export const LoginPage: React.FC = () => {
           <Activity className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-1.5">
-          Pulse<span className="text-[#0d9488]">Relay</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 ml-1">
-            Network
-          </span>
+          Pulse<span>Relay</span>
         </h1>
         <p className="text-xs text-slate-500 font-medium mt-1">
           Hospital Blood Inventory & Inter-Centre Coordination Grid
