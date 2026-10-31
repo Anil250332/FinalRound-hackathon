@@ -379,6 +379,7 @@ export const HospitalManagementPage: React.FC = () => {
         onClose={() => setIsAddModalOpen(false)}
         title="Register New Participating Hospital"
         subtitle="Verify clinical credentials before activating into the emergency network"
+        maxWidth="xl"
       >
         <form onSubmit={handleAddSubmit} className="space-y-4 text-xs">
           <div>
@@ -534,17 +535,17 @@ export const HospitalManagementPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-4 flex items-center justify-end space-x-2 border-t border-slate-100">
+          <div className="sticky bottom-0 -mx-6 -mb-6 px-6 py-4 bg-white/95 backdrop-blur-xs flex items-center justify-end space-x-2 border-t border-slate-200 mt-6 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md shadow-emerald-600/20"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md shadow-emerald-600/20 cursor-pointer transition-colors"
             >
               Submit for Verification
             </button>
