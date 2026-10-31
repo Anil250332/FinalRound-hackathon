@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { logout } from '../../store/slices/authSlice';
 import { markAsRead, markAllAsRead } from '../../store/slices/notificationSlice';
 import { UserRole } from '../../types';
 import {
   Bell,
-  LogOut,
-  Hospital,
-  Droplet,
-  ShieldCheck,
   Menu,
-  Activity,
-  Building2,
-  ChevronDown,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -60,10 +52,6 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
     return 'Dashboard';
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
 
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
@@ -107,21 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
 
       {/* Right: Dynamic Hospital / Node Indicator + Notifications + User Profile */}
       <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
-        {/* Dynamic Connected Node Badge */}
-        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs text-slate-700">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          {activeRole === 'SUPER_ADMIN' ? (
-            <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>National Grid Hub</span>
-            </span>
-          ) : (
-            <span className="font-semibold text-slate-700 flex items-center gap-1.5 truncate max-w-[200px]">
-              <Building2 className="w-3.5 h-3.5 text-[#0d9488]" />
-              <span className="truncate">{currentHospitalName}</span>
-            </span>
-          )}
-        </div>
+
 
         {/* Notifications Icon */}
         <div className="relative">
@@ -203,32 +177,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
             </div>
           </button>
 
-          {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-xl border border-slate-100 p-2 z-50 animate-in fade-in slide-in-from-top-1">
-              <div className="p-3 border-b border-slate-100">
-                <p className="font-bold text-xs text-slate-900">{currentUser?.name}</p>
-                <p className="text-[11px] text-slate-500 truncate">{currentUser?.email}</p>
-                <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Facility:</span>
-                  <span className="font-bold text-slate-800 truncate max-w-[130px]">{currentHospitalName}</span>
-                </div>
-                <div className="mt-1 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-400 font-medium">Role:</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${roleBadge.bg}`}>
-                    {roleBadge.label}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center space-x-2 px-3 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors mt-1 cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          )}
+        
         </div>
       </div>
     </header>

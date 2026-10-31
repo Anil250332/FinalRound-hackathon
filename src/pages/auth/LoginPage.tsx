@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/redux';
 import { loginSuccess, loginUserThunk } from '../../store/slices/authSlice';
 import { DEMO_USERS } from '../../services/mockData';
@@ -213,12 +213,7 @@ export const LoginPage: React.FC = () => {
                     <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                       Password
                     </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-[11px] font-bold text-[#0d9488] hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
+                   
                   </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">

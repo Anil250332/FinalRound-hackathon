@@ -1,25 +1,19 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAppSelector } from '../../hooks/redux';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { logout } from '../../store/slices/authSlice';
 import {
   LayoutDashboard,
   Building2,
   Users,
   Radio,
-  FileText,
   UserCheck,
   Building,
-  BarChart3,
   Droplet,
   Inbox,
-  BookmarkCheck,
   PlusCircle,
-  Network,
-  Truck,
-  HeartHandshake,
   Activity,
-  Heart,
-  ShieldAlert,
+  LogOut,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,6 +21,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { activeRole, currentUser } = useAppSelector((state) => state.auth);
   const { requests } = useAppSelector((state) => state.emergency);
   const { hospitals } = useAppSelector((state) => state.hospitals);
@@ -36,9 +32,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
     hospitals.find((h) => h.id === currentUser?.hospitalId)?.name ||
     (activeRole === 'SUPER_ADMIN' ? 'National Blood Grid' : 'Medical Centre');
 
-  const activeEmergencyCount = requests.filter(
-    (r) => r.status === 'SEARCHING' || r.status === 'OFFERS_RECEIVED' || r.status === 'PARTIALLY_ALLOCATED'
-  ).length;
+  const handleLogout = () => {
+    dispatch(logout());
+    if (onCloseMobile) onCloseMobile();
+    navigate('/login');
+  };
 
   const getNavLinks = () => {
     switch (activeRole) {
@@ -96,9 +94,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
               to={item.path}
               onClick={onCloseMobile}
               className={({ isActive }) =>
-                `flex items-center space-x-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 ${isActive
-                  ? 'bg-white/20 text-white shadow-sm font-bold backdrop-blur-xs translate-x-1'
-                  : 'text-emerald-100/75 hover:text-white hover:bg-white/10'
+                `flex items-center space-x-3.5 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-white/20 text-white shadow-sm font-bold backdrop-blur-xs translate-x-1'
+                    : 'text-emerald-100/75 hover:text-white hover:bg-white/10'
                 }`
               }
             >
@@ -109,13 +108,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
         })}
       </div>
 
-      {/* Footer Info */}
-      <div className="p-5 border-t border-white/10 text-[11px] text-emerald-200/70">
-        <p className="font-semibold text-white/90 truncate">{currentUser?.name || 'User'}</p>
-        <p className="text-[10px] text-emerald-200/60 truncate mt-0.5">
-          {currentHospitalName}
-        </p>
-        <p className="text-[9px] text-emerald-300/40 mt-3 font-mono">© 2026 PulseRelay v1.1.0</p>
+      {/* Footer Info & Prominent Logout */}
+      <div className="p-4 border-t border-white/10 text-[11px] text-emerald-200/70 space-y-3">
+        <div className="min-w-0">
+          <p className="font-bold text-white text-xs truncate">{currentUser?.name || 'User'}</p>
+          <p className="text-[10px] text-emerald-200/60 truncate mt-0.5">
+            {currentHospitalName}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-xl bg-white/10 hover:bg-rose-500/20 text-emerald-100 hover:text-white border border-white/15 hover:border-rose-400/40 text-xs font-bold transition-all cursor-pointer group"
+        >
+          <LogOut className="w-4 h-4 text-emerald-200 group-hover:text-rose-300" />
+          <span>Sign Out</span>
+        </button>
+
+        <p className="text-[9px] text-emerald-300/40 text-center font-mono">© 2026 PulseRelay v1.1.0</p>
       </div>
     </aside>
   );

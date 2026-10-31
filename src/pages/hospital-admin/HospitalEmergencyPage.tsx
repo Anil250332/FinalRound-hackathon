@@ -164,7 +164,7 @@ export const HospitalEmergencyPage: React.FC = () => {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase text-slate-500">Kitni Aayi Hain (Incoming)</span>
+              <span className="text-[11px] font-bold uppercase text-slate-500">Incoming Requests</span>
               <Inbox className={`w-4 h-4 ${activeTab === 'INCOMING' ? 'text-rose-600' : 'text-slate-400'}`} />
             </div>
             <p className="text-2xl font-black text-slate-900 mt-1">{incomingRequests.length}</p>
@@ -181,7 +181,7 @@ export const HospitalEmergencyPage: React.FC = () => {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase text-slate-500">Kitni Accept Ki Hain</span>
+              <span className="text-[11px] font-bold uppercase text-slate-500">Accepted by Us</span>
               <CheckCircle2 className={`w-4 h-4 ${activeTab === 'ACCEPTED_BY_US' ? 'text-[#0d9488]' : 'text-slate-400'}`} />
             </div>
             <p className="text-2xl font-black text-slate-900 mt-1">{acceptedByUs.length}</p>
@@ -198,7 +198,7 @@ export const HospitalEmergencyPage: React.FC = () => {
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase text-slate-500">Kitni Request Kari Hain</span>
+              <span className="text-[11px] font-bold uppercase text-slate-500">Raised by Us</span>
               <Send className={`w-4 h-4 ${activeTab === 'OUR_REQUESTS' ? 'text-blue-600' : 'text-slate-400'}`} />
             </div>
             <p className="text-2xl font-black text-slate-900 mt-1">{ourRequests.length}</p>
