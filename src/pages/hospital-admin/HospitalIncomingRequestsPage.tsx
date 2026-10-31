@@ -4,6 +4,7 @@ import { fetchEmergencyRequests } from '../../store/slices/emergencySlice';
 import { apiService } from '../../services/apiService';
 import { EmergencyRequest } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
+import { SkeletonRequestCard } from '../../components/common/Skeleton';
 import {
   Inbox,
   Radio,
@@ -175,11 +176,12 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
 
       {/* List of Requests */}
       <div className="space-y-4">
-        {isLoading ? (
-          <div className="bg-white rounded-3xl border border-slate-100 p-16 text-center">
-            <div className="inline-block w-8 h-8 border-3 border-[#0d9488] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-xs font-bold text-slate-500 mt-3">Loading incoming requests...</p>
-          </div>
+        {isLoading && filteredList.length === 0 ? (
+          <>
+            <SkeletonRequestCard />
+            <SkeletonRequestCard />
+            <SkeletonRequestCard />
+          </>
         ) : filteredList.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-100 p-16 text-center">
             <AlertCircle className="w-10 h-10 text-slate-300 mx-auto mb-2" />
