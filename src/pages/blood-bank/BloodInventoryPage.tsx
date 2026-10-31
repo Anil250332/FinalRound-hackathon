@@ -7,29 +7,32 @@ import {
   setSearchQuery,
 } from '../../store/slices/inventorySlice';
 import { BloodGroup, BloodComponent } from '../../types';
+import { StatCard } from '../../components/common/StatCard';
 import { Modal } from '../../components/common/Modal';
 import {
   Droplet,
-  Plus,
-  Search,
-  Thermometer,
-  Calendar,
-  Clock,
   CheckCircle2,
-  AlertTriangle,
-  RefreshCw,
+  XCircle,
+  AlertCircle,
+  Search,
+  Calendar,
+  Plus,
+  Thermometer,
+  BookmarkCheck,
+  Check,
 } from 'lucide-react';
 
 export const BloodInventoryPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { items, selectedBloodGroupFilter, selectedComponentFilter, searchQuery } = useAppSelector(
+  const { items, selectedBloodGroupFilter, searchQuery } = useAppSelector(
     (state) => state.inventory
   );
 
   const hospitalId = currentUser?.hospitalId || 'hosp-1';
   const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital & Blood Centre';
 
+  const [activeTab, setActiveTab] = useState<'ALL' | 'AVAILABLE' | 'RESERVED' | 'CRITICAL'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     hospitalId,
@@ -45,185 +48,216 @@ export const BloodInventoryPage: React.FC = () => {
   const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const components: BloodComponent[] = ['Whole Blood', 'PRBC', 'Platelets', 'FFP', 'Cryoprecipitate'];
 
+  const myItems = items.filter((i) => i.hospitalId === hospitalId);
+  const totalUnitsCount = myItems.reduce((acc, curr) => acc + curr.totalUnits, 0);
+  const availableUnitsCount = myItems.reduce((acc, curr) => acc + curr.availableUnits, 0);
+  const reservedUnitsCount = myItems.reduce((acc, curr) => acc + curr.reservedUnits, 0);
+  const criticalCount = myItems.filter((i) => i.availableUnits < 8).length;
+
   const handleStockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(addOrUpdateStock(formData));
     setIsModalOpen(false);
   };
 
-  const filteredItems = items
-    .filter((item) => item.hospitalId === hospitalId)
-    .filter((item) => {
-      const matchesGroup =
-        selectedBloodGroupFilter === 'ALL' || item.bloodGroup === selectedBloodGroupFilter;
-      const matchesComponent =
-        selectedComponentFilter === 'ALL' || item.component === selectedComponentFilter;
-      const matchesSearch =
-        item.bloodGroup.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.component.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesGroup && matchesComponent && matchesSearch;
-    });
+  const getHeaderColor = (bg: BloodGroup) => {
+    switch (bg) {
+      case 'B+':
+        return 'bg-gradient-to-r from-blue-600 to-blue-500 text-white';
+      case 'AB+':
+        return 'bg-gradient-to-r from-purple-600 to-violet-500 text-white';
+      case 'A-':
+        return 'bg-gradient-to-r from-rose-500 to-pink-500 text-white';
+      case 'O-':
+        return 'bg-gradient-to-r from-red-600 to-rose-600 text-white';
+      case 'O+':
+        return 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white';
+      case 'A+':
+        return 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white';
+      case 'B-':
+        return 'bg-gradient-to-r from-amber-500 to-orange-500 text-white';
+      case 'AB-':
+        return 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white';
+    }
+  };
+
+  const filteredItems = myItems.filter((item) => {
+    const matchesSearch =
+      item.bloodGroup.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.component.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (activeTab === 'AVAILABLE') return matchesSearch && item.availableUnits > 0;
+    if (activeTab === 'RESERVED') return matchesSearch && item.reservedUnits > 0;
+    if (activeTab === 'CRITICAL') return matchesSearch && item.availableUnits < 8;
+    return matchesSearch;
+  });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-8">
+      {/* Page Title & Subtitle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Blood Inventory Management</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Component-wise stock maintenance, cold-storage telemetry, and real-time reservation locks for {hospitalName}
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Blood Inventory</h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">
+            Manage and track blood specimen inventory across units
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2"
+          className="px-5 py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-2xl text-xs font-bold shadow-md shadow-teal-700/20 transition-all flex items-center justify-center space-x-2 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Add / Update Stock</span>
+          <span>Add Blood Stock</span>
         </button>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="relative w-full md:w-72">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* 4 Minimalist Stat Cards matching Image 2 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="Total Units"
+          value={totalUnitsCount}
+          icon={Droplet}
+          color="teal"
+        />
+        <StatCard
+          title="Available"
+          value={availableUnitsCount}
+          icon={CheckCircle2}
+          color="emerald"
+        />
+        <StatCard
+          title="Reserved Units"
+          value={reservedUnitsCount}
+          icon={BookmarkCheck}
+          color="blue"
+        />
+        <StatCard
+          title="Critical Alerts"
+          value={criticalCount}
+          icon={AlertCircle}
+          color="rose"
+        />
+      </div>
+
+      {/* Clean Search and Filter Bar matching Image 2 */}
+      <div className="bg-white rounded-3xl p-3.5 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="relative w-full md:w-96 pl-2">
+          <Search className="w-4 h-4 text-slate-400 absolute left-5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-            placeholder="Search blood group or component..."
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20"
+            placeholder="Search by blood group..."
+            className="w-full pl-10 pr-4 py-2 bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-hidden font-medium"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Blood Group Filter */}
-          <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-semibold text-slate-500">Group:</span>
-            <select
-              value={selectedBloodGroupFilter}
-              onChange={(e) => dispatch(setBloodGroupFilter(e.target.value as any))}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-hidden"
-            >
-              <option value="ALL">All Groups</option>
-              {bloodGroups.map((bg) => (
-                <option key={bg} value={bg}>
-                  {bg}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Component Filter */}
-          <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-semibold text-slate-500">Component:</span>
-            <select
-              value={selectedComponentFilter}
-              onChange={(e) => dispatch(setComponentFilter(e.target.value as any))}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-hidden"
-            >
-              <option value="ALL">All Components</option>
-              {components.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Filter Pills matching Image 2 */}
+        <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 px-2">
+          {[
+            { id: 'ALL', label: 'All' },
+            { id: 'AVAILABLE', label: 'Available' },
+            { id: 'RESERVED', label: 'Reserved' },
+            { id: 'CRITICAL', label: 'Critical' },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-5 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#0d9488] text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-100/80 bg-slate-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Inventory Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                <th className="py-3.5 px-5">Blood Group</th>
-                <th className="py-3.5 px-4">Component</th>
-                <th className="py-3.5 px-4">Available Units</th>
-                <th className="py-3.5 px-4">Reserved Units</th>
-                <th className="py-3.5 px-4">Total In-Stock</th>
-                <th className="py-3.5 px-4">Storage Temp</th>
-                <th className="py-3.5 px-4">Expiry Date</th>
-                <th className="py-3.5 px-5 text-right">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredItems.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="py-3.5 px-5">
-                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 text-emerald-800 font-black text-xs border border-emerald-200">
-                      {item.bloodGroup}
+      {/* Blood Group Cards Grid with Curved Colored Headers matching Image 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredItems.map((item) => {
+          const headerBg = getHeaderColor(item.bloodGroup);
+          return (
+            <div
+              key={item.id}
+              className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+            >
+              {/* Colored Curved Header */}
+              <div className={`p-6 ${headerBg} relative`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center">
+                      <Droplet className="w-5 h-5 fill-white text-white" />
+                    </div>
+                    <div>
+                      <span className="text-[11px] font-semibold text-white/80 block">Blood Group</span>
+                      <span className="text-2xl font-black text-white tracking-tight">{item.bloodGroup}</span>
+                    </div>
+                  </div>
+
+                  <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                    <Check className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+
+                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-xs">
+                  {item.component}
+                </div>
+              </div>
+
+              {/* White Card Body with Dates and Units */}
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[10px] font-semibold text-slate-400 block">Available Units</span>
+                    <span className="text-xl font-black text-slate-900 mt-0.5 block">
+                      {item.availableUnits} <span className="text-xs text-slate-400 font-normal">Bags</span>
                     </span>
-                  </td>
+                  </div>
 
-                  <td className="py-3.5 px-4 font-bold text-slate-900">
-                    {item.component}
-                  </td>
+                  <div>
+                    <span className="text-[10px] font-semibold text-slate-400 block">Reserved</span>
+                    <span className="text-xl font-black text-amber-600 mt-0.5 block">
+                      {item.reservedUnits} <span className="text-xs text-slate-400 font-normal">Locked</span>
+                    </span>
+                  </div>
+                </div>
 
-                  <td className="py-3.5 px-4">
-                    <span className="font-extrabold text-sm text-slate-900">{item.availableUnits}</span>{' '}
-                    <span className="text-slate-400 text-[11px]">Units</span>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    {item.reservedUnits > 0 ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        {item.reservedUnits} Locked
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
-                  </td>
-
-                  <td className="py-3.5 px-4 font-bold text-slate-700">
-                    {item.totalUnits} Units
-                  </td>
-
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600">
-                    <div className="flex items-center space-x-1">
-                      <Thermometer className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{item.storageTemp}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600">
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{item.expiryDate}</span>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-5 text-right">
-                    {item.availableUnits >= 10 ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Adequate
-                      </span>
-                    ) : item.availableUnits > 0 ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        Low Stock
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 animate-pulse">
-                        Depleted
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                <div className="pt-3 border-t border-slate-100 space-y-2 text-xs">
+                  <div className="flex items-center text-slate-500">
+                    <Calendar className="w-4 h-4 text-slate-400 mr-2.5" />
+                    <span className="text-[11px]">Collection Date:</span>
+                    <span className="ml-auto font-semibold text-slate-700">01/03/2026</span>
+                  </div>
+                  <div className="flex items-center text-slate-500">
+                    <Calendar className="w-4 h-4 text-slate-400 mr-2.5" />
+                    <span className="text-[11px]">Expiry Date:</span>
+                    <span className="ml-auto font-semibold text-slate-700">{item.expiryDate}</span>
+                  </div>
+                  <div className="flex items-center text-slate-500">
+                    <Thermometer className="w-4 h-4 text-teal-600 mr-2.5" />
+                    <span className="text-[11px]">Storage Temp:</span>
+                    <span className="ml-auto font-mono font-semibold text-teal-700">{item.storageTemp}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Add / Update Stock Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add or Update Blood Component Inventory"
-        subtitle="Record tested and certified blood units into the hospital inventory ledger"
+        title="Add Blood Component Stock"
+        subtitle="Record tested and certified blood units into the hospital inventory"
       >
         <form onSubmit={handleStockSubmit} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
@@ -316,7 +350,7 @@ export const BloodInventoryPage: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md shadow-emerald-600/20"
+              className="px-4 py-2 rounded-xl bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] shadow-md shadow-teal-700/20"
             >
               Save Units to Inventory
             </button>
