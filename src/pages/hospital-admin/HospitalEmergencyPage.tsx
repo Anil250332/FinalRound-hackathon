@@ -28,9 +28,10 @@ export const HospitalEmergencyPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
   const { requests, isLoading } = useAppSelector((state) => state.emergency);
-
-  const hospitalId = currentUser?.hospitalId || '6ae5bfa3a41657de36e25a1d';
-  const hospitalName = currentUser?.hospitalName || 'My Hospital';
+  const { hospitals } = useAppSelector((state) => state.hospitals);
+  const matchedHosp = hospitals.find((h) => h.id === currentUser?.hospitalId);
+  const hospitalId = currentUser?.hospitalId || matchedHosp?.id || '6ae5bfa3a41657de36e25a1d';
+  const hospitalName = currentUser?.hospitalName || matchedHosp?.name || 'My Hospital';
 
   const [activeTab, setActiveTab] = useState<'INCOMING' | 'ACCEPTED_BY_US' | 'OUR_REQUESTS'>('INCOMING');
   const [search, setSearch] = useState('');

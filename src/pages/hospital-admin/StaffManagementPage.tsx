@@ -21,8 +21,10 @@ import {
 
 export const StaffManagementPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
-  const hospitalId = currentUser?.hospitalId || '6ae5bfa3a41657de36e25a1d';
-  const hospitalName = currentUser?.hospitalName || 'City Care Hospital';
+  const { hospitals } = useAppSelector((state) => state.hospitals);
+  const matchedHosp = hospitals.find((h) => h.id === currentUser?.hospitalId);
+  const hospitalId = currentUser?.hospitalId || matchedHosp?.id || '6ae5bfa3a41657de36e25a1d';
+  const hospitalName = currentUser?.hospitalName || matchedHosp?.name || 'Hospital Center';
 
   const [staffList, setStaffList] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);

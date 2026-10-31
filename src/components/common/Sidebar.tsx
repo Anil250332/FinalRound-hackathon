@@ -29,6 +29,12 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   const { activeRole, currentUser } = useAppSelector((state) => state.auth);
   const { requests } = useAppSelector((state) => state.emergency);
+  const { hospitals } = useAppSelector((state) => state.hospitals);
+
+  const currentHospitalName =
+    currentUser?.hospitalName ||
+    hospitals.find((h) => h.id === currentUser?.hospitalId)?.name ||
+    (activeRole === 'SUPER_ADMIN' ? 'National Blood Grid' : 'Medical Centre');
 
   const activeEmergencyCount = requests.filter(
     (r) => r.status === 'SEARCHING' || r.status === 'OFFERS_RECEIVED' || r.status === 'PARTIALLY_ALLOCATED'
@@ -105,9 +111,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
 
       {/* Footer Info */}
       <div className="p-5 border-t border-white/10 text-[11px] text-emerald-200/70">
-        <p className="font-semibold text-white/90 truncate">{currentUser?.name}</p>
+        <p className="font-semibold text-white/90 truncate">{currentUser?.name || 'User'}</p>
         <p className="text-[10px] text-emerald-200/60 truncate mt-0.5">
-          {currentUser?.hospitalName || 'National Portal'}
+          {currentHospitalName}
         </p>
         <p className="text-[9px] text-emerald-300/40 mt-3 font-mono">© 2026 PulseRelay v1.1.0</p>
       </div>

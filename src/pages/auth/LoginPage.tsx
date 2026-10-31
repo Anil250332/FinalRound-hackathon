@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/redux';
-import { setRole, loginSuccess, loginUserThunk } from '../../store/slices/authSlice';
+import { loginSuccess, loginUserThunk } from '../../store/slices/authSlice';
 import { DEMO_USERS } from '../../services/mockData';
 import { UserRole } from '../../types';
 import {
@@ -13,7 +13,7 @@ import {
   Lock,
   Mail,
   CheckCircle2,
-  Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -23,6 +23,7 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const demoAccounts = [
     {
@@ -56,12 +57,23 @@ export const LoginPage: React.FC = () => {
 
   const handleDemoLogin = async (account: (typeof demoAccounts)[0]) => {
     setIsLoading(true);
+    setErrorMessage(null);
     try {
-      await dispatch(loginUserThunk({ email: account.user.email, password: 'Password@123' }));
+      const resultAction = await dispatch(loginUserThunk({ email: account.user.email, password: 'Password@123' }));
+      if (loginUserThunk.fulfilled.match(resultAction)) {
+        setIsLoading(false);
+        navigate(account.route);
+        return;
+      }
     } catch {
-      // Fallback
+      // Backend asleep or offline
     }
-    dispatch(setRole(account.role));
+    dispatch(
+      loginSuccess({
+        user: account.user,
+        token: 'demo-token-' + Date.now(),
+      })
+    );
     setIsLoading(false);
     navigate(account.route);
   };
@@ -70,28 +82,74 @@ export const LoginPage: React.FC = () => {
     e.preventDefault();
     if (!email) return;
     setIsLoading(true);
+    setErrorMessage(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = password.trim() || 'Password@123';
+
     try {
-      const resultAction = await dispatch(loginUserThunk({ email, password: password || 'Password@123' }));
+      const resultAction = await dispatch(loginUserThunk({ email: cleanEmail, password: cleanPass }));
       if (loginUserThunk.fulfilled.match(resultAction)) {
         const user = resultAction.payload.user;
-        const targetRoute =
-          user.role === 'SUPER_ADMIN'
-            ? '/super-admin/overview'
-            : user.role === 'HOSPITAL_ADMIN'
-              ? '/hospital-admin/overview'
-              : user.role === 'BLOOD_BANK_OFFICER'
-                ? '/blood-bank/overview'
-                : '/coordinator/overview';
         setIsLoading(false);
-        navigate(targetRoute);
+        if (user.role === 'SUPER_ADMIN') {
+          navigate('/super-admin/overview');
+        } else if (user.role === 'HOSPITAL_ADMIN') {
+          navigate('/hospital-admin/overview');
+        } else {
+          navigate('/blood-bank/overview');
+        }
         return;
       }
     } catch {
       // Fallback
     }
+
+    // Check cached registered hospital admins in localStorage
+    try {
+      const registeredAdmins = JSON.parse(localStorage.getItem('pulserelay_registered_admins') || '[]');
+      const matchedLocal = registeredAdmins.find(
+        (a: any) => a.email.toLowerCase() === cleanEmail && (!password || a.password === cleanPass)
+      );
+      if (matchedLocal) {
+        dispatch(
+          loginSuccess({
+            user: matchedLocal.user,
+            token: 'local-jwt-' + Date.now(),
+          })
+        );
+        setIsLoading(false);
+        navigate('/hospital-admin/overview');
+        return;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+
+    // Check DEMO_USERS
+    const demoMatch = Object.values(DEMO_USERS).find(
+      (u) => u.email.toLowerCase() === cleanEmail
+    );
+    if (demoMatch) {
+      dispatch(
+        loginSuccess({
+          user: demoMatch,
+          token: 'demo-token-' + Date.now(),
+        })
+      );
+      setIsLoading(false);
+      if (demoMatch.role === 'SUPER_ADMIN') {
+        navigate('/super-admin/overview');
+      } else if (demoMatch.role === 'HOSPITAL_ADMIN') {
+        navigate('/hospital-admin/overview');
+      } else {
+        navigate('/blood-bank/overview');
+      }
+      return;
+    }
+
     setIsLoading(false);
-    const matchedAccount = demoAccounts.find((a) => a.user.email.toLowerCase() === email.toLowerCase()) || demoAccounts[0];
-    handleDemoLogin(matchedAccount);
+    setErrorMessage('Invalid credentials or account not found. Please verify your email and password.');
   };
 
   return (
@@ -123,7 +181,14 @@ export const LoginPage: React.FC = () => {
                 <p className="text-xs text-slate-400 mt-1">Sign in with authorized clinical credentials</p>
               </div>
 
-              <form onSubmit={handleFormSubmit} className="mt-8 space-y-4">
+              {errorMessage && (
+                <div className="mt-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} className="mt-6 space-y-4">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
                     Email Address
@@ -137,7 +202,7 @@ export const LoginPage: React.FC = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="officer@hospital.org"
+                      placeholder="admin@hospital.org"
                       className="block w-full pl-10 pr-3.5 py-3 bg-slate-50/70 border border-slate-200/80 rounded-2xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#0d9488]/20 focus:border-[#0d9488] transition-all"
                     />
                   </div>
@@ -245,9 +310,9 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div className="mt-5 p-3.5 rounded-2xl bg-white border border-slate-200/80 text-slate-500 text-[11px] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#0d9488] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[#0d9488] shrink-0" />
               <span>
-                <strong className="text-slate-800">Evaluator Tip:</strong> You can switch roles at any time using the top navbar selector without signing out.
+                <strong className="text-slate-800">Direct Role Access:</strong> Hospital Admins have complete inventory and user management, while Blood Bank Officers focus on component stock and emergency fulfillment.
               </span>
             </div>
           </div>

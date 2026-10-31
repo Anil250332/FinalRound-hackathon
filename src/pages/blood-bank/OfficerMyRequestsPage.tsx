@@ -24,11 +24,12 @@ export const OfficerMyRequestsPage: React.FC = () => {
   const { requests, isLoading } = useAppSelector((state) => state.emergency);
   const { hospitals } = useAppSelector((state) => state.hospitals);
 
+  const matchedHosp = hospitals.find((h) => h.id === currentUser?.hospitalId);
   const hospitalId =
     currentUser?.hospitalId && currentUser.hospitalId.length === 24
       ? currentUser.hospitalId
-      : hospitals[0]?.id || '6ae5bfa3a41657de36e25a1e';
-  const hospitalName = currentUser?.hospitalName || hospitals[0]?.name || 'Apollo Demo Blood Centre';
+      : matchedHosp?.id || '6ae5bfa3a41657de36e25a1e';
+  const hospitalName = currentUser?.hospitalName || matchedHosp?.name || 'Blood Centre';
 
   // Form State
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>('O-');

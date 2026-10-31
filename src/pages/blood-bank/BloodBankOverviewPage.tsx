@@ -22,8 +22,10 @@ export const BloodBankOverviewPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
   const { items, isLoading } = useAppSelector((state) => state.inventory);
   const { requests } = useAppSelector((state) => state.emergency);
-
-  const hospitalId = currentUser?.hospitalId || 'hosp-1';
+  const { hospitals } = useAppSelector((state) => state.hospitals);
+  const matchedHosp = hospitals.find((h) => h.id === currentUser?.hospitalId);
+  const hospitalId = currentUser?.hospitalId || matchedHosp?.id || '6ae5bfa3a41657de36e25a1e';
+  const hospitalName = currentUser?.hospitalName || matchedHosp?.name || 'Blood Centre';
 
   useEffect(() => {
     if (hospitalId) {
@@ -31,7 +33,10 @@ export const BloodBankOverviewPage: React.FC = () => {
     }
     dispatch(fetchEmergencyRequests());
   }, [dispatch, hospitalId]);
-  const myInventory = items.filter((i) => i.hospitalId === hospitalId);
+
+  const myInventory = items.length > 0 && items.some((i) => i.hospitalId === hospitalId)
+    ? items.filter((i) => i.hospitalId === hospitalId)
+    : items;
 
   const totalAvailable = myInventory.reduce((acc, curr) => acc + curr.availableUnits, 0);
   const totalReserved = myInventory.reduce((acc, curr) => acc + curr.reservedUnits, 0);
@@ -51,7 +56,7 @@ export const BloodBankOverviewPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Blood Bank Operations</h1>
           <p className="text-sm text-slate-500 mt-1 font-medium">
-            Component inventory, incoming emergency broadcasts, and unit reservations
+            Component inventory, incoming emergency broadcasts, and unit reservations for <strong className="text-slate-800">{hospitalName}</strong>
           </p>
         </div>
 

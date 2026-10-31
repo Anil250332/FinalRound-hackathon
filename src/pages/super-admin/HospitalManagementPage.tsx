@@ -106,7 +106,7 @@ export const HospitalManagementPage: React.FC = () => {
     const effectiveAdminPassword = (newHosp.adminPassword || 'Password@123').trim();
 
     // Persist in live MongoDB Atlas backend
-    await dispatch(
+    const createResult = await dispatch(
       createHospitalThunk({
         name: newHosp.name,
         hospitalCode: newHosp.licenseNumber,
@@ -118,11 +118,39 @@ export const HospitalManagementPage: React.FC = () => {
         hasBloodBank: newHosp.hasBloodBank,
         coordinates: newHosp.coordinates || { lat: 22.7196, lng: 75.8577 },
         role: newHosp.hasBloodBank ? 'BOTH' : 'REQUESTING',
+        contact: {
+          phone: newHosp.phone || '+91 98260 00000',
+          email: newHosp.email || effectiveAdminEmail,
+          emergencyContact: newHosp.phone || '+91 98260 00000',
+        },
         adminName: newHosp.adminName || `${newHosp.name} Head`,
         adminEmail: effectiveAdminEmail,
         adminPassword: effectiveAdminPassword,
       })
     );
+
+    // Cache locally for instant seamless login fallback
+    try {
+      const existingAdmins = JSON.parse(localStorage.getItem('pulserelay_registered_admins') || '[]');
+      const createdHosp = createHospitalThunk.fulfilled.match(createResult) ? createResult.payload : null;
+      existingAdmins.push({
+        email: effectiveAdminEmail.toLowerCase(),
+        password: effectiveAdminPassword,
+        user: {
+          id: createdHosp?.id || `hosp-admin-${Date.now()}`,
+          name: newHosp.adminName || `${newHosp.name} Head`,
+          email: effectiveAdminEmail,
+          role: 'HOSPITAL_ADMIN',
+          hospitalId: createdHosp?.id || `hosp-${Date.now()}`,
+          hospitalName: newHosp.name,
+          phone: newHosp.phone || '+91 98260 00000',
+          status: 'ACTIVE',
+        },
+      });
+      localStorage.setItem('pulserelay_registered_admins', JSON.stringify(existingAdmins));
+    } catch (e) {
+      console.warn('LocalStorage cache error:', e);
+    }
 
     setCreatedAdminCredentials({
       hospitalName: newHosp.name,
