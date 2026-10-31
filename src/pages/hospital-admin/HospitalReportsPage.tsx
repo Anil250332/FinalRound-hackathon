@@ -96,7 +96,14 @@ export const HospitalReportsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
-              {transfers.map((trf) => (
+              {transfers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                    No inter-facility transfers recorded yet for this period.
+                  </td>
+                </tr>
+              ) : (
+                transfers.map((trf) => (
                 <tr key={trf.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="py-3.5 px-5 font-mono font-bold text-slate-900">
                     {trf.transferId}
@@ -137,7 +144,7 @@ export const HospitalReportsPage: React.FC = () => {
                     <StatusBadge status={trf.status} />
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

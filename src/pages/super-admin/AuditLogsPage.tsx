@@ -105,11 +105,11 @@ export const AuditLogsPage: React.FC = () => {
             <tbody className="divide-y divide-slate-100 text-xs">
               {isLoading ? (
                 <>
-                  <SkeletonTableRow columns={6} />
-                  <SkeletonTableRow columns={6} />
-                  <SkeletonTableRow columns={6} />
-                  <SkeletonTableRow columns={6} />
-                  <SkeletonTableRow columns={6} />
+                  <SkeletonTableRow cols={6} />
+                  <SkeletonTableRow cols={6} />
+                  <SkeletonTableRow cols={6} />
+                  <SkeletonTableRow cols={6} />
+                  <SkeletonTableRow cols={6} />
                 </>
               ) : filteredLogs.length === 0 ? (
                 <tr>
@@ -147,7 +147,7 @@ export const AuditLogsPage: React.FC = () => {
                     {log.ipAddress}
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

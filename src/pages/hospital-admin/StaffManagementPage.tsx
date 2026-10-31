@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppSelector } from '../../hooks/redux';
 import { User, UserRole } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { apiService, adaptUser } from '../../services/apiService';
 import {
   Users,
   UserPlus,
@@ -18,54 +19,24 @@ import {
 
 export const StaffManagementPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
-  const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital';
+  const hospitalName = currentUser?.hospitalName || 'City Care Hospital';
 
-  const [staffList, setStaffList] = useState<User[]>([
-    {
-      id: 'stf-1',
-      name: 'Officer Vikram Rathore',
-      email: 'bloodbank@aiims.edu.in',
-      role: 'BLOOD_BANK_OFFICER',
-      hospitalName,
-      phone: '+91 98300 78901',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150',
-      createdAt: '2026-02-12',
-    },
-    {
-      id: 'stf-2',
-      name: 'Dr. Rohit Mehra',
-      email: 'r.mehra@aiims.edu.in',
-      role: 'BLOOD_BANK_OFFICER',
-      hospitalName,
-      phone: '+91 98301 22334',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150',
-      createdAt: '2026-02-14',
-    },
-    {
-      id: 'stf-3',
-      name: 'Dr. Sunita Rao',
-      email: 's.rao@aiims.edu.in',
-      role: 'EMERGENCY_COORDINATOR',
-      hospitalName,
-      phone: '+91 98402 33445',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1594824813515-5a2a07c11f7c?w=150',
-      createdAt: '2026-02-18',
-    },
-    {
-      id: 'stf-4',
-      name: 'Coordinator Tarun Joshi',
-      email: 't.joshi@aiims.edu.in',
-      role: 'EMERGENCY_COORDINATOR',
-      hospitalName,
-      phone: '+91 98403 44556',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      createdAt: '2026-02-22',
-    },
-  ]);
+  const [staffList, setStaffList] = useState<User[]>([]);
+
+  useEffect(() => {
+    apiService
+      .getDemoUsers()
+      .then((rawUsers) => {
+        if (rawUsers && rawUsers.length > 0) {
+          const adapted = rawUsers.map(adaptUser);
+          const hospitalUsers = adapted.filter(
+            (u) => u.hospitalId === currentUser?.hospitalId || u.hospitalName === hospitalName
+          );
+          setStaffList(hospitalUsers.length > 0 ? hospitalUsers : adapted.filter((u) => u.role !== 'SUPER_ADMIN'));
+        }
+      })
+      .catch(() => {});
+  }, [currentUser?.hospitalId, hospitalName]);
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'BLOOD_BANK_OFFICER' | 'EMERGENCY_COORDINATOR'>('ALL');

@@ -40,7 +40,7 @@ export const HospitalOverviewPage: React.FC = () => {
           <div className="flex items-center space-x-2">
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{hospitalName}</h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-              {currentHosp?.isVerified ? 'VERIFIED' : 'ACTIVE'}
+              {currentHosp?.verified ? 'VERIFIED' : 'ACTIVE'}
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1 font-medium flex items-center gap-2">
