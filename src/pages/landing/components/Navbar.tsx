@@ -84,7 +84,7 @@ export const LandingNavbar: React.FC = () => {
             </div>
             <div>
               <span className={`font-black tracking-tight text-slate-900 transition-all ${isScrolled ? 'text-lg' : 'text-xl'}`}>
-                Pulse<span className="text-[#0d9488]">Relay</span>
+                Pulse<span cla">Relay</span>
               </span>
             </div>
           </Link>

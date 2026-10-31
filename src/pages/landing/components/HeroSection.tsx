@@ -97,8 +97,8 @@ export const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 3 Stat Cards — proper spacing below hero, no negative overlap on mobile */}
-        <div className="mt-5 sm:mt-0 sm:-mt-10 z-20 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:px-4">
+        {/* 3 Stat Cards — clean spacing below hero with independent elevation */}
+        <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
             {
               icon: Clock,
@@ -135,7 +135,7 @@ export const HeroSection: React.FC = () => {
             return (
               <div
                 key={card.badge}
-                className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                className="bg-white rounded-3xl p-6 sm:p-7 shadow-lg shadow-teal-950/5 border border-slate-200/80 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl ${card.iconBg} flex items-center justify-center`}>
