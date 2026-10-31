@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { DEMO_USERS } from '../../services/mockData';
 import { User, UserRole } from '../../types';
+import { apiService, adaptUser } from '../../services/apiService';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import {
@@ -26,31 +27,18 @@ export const UserManagementPage: React.FC = () => {
     DEMO_USERS.hospitalAdmin,
     DEMO_USERS.bloodBankOfficer,
     DEMO_USERS.emergencyCoordinator,
-    {
-      id: 'usr-extra-1',
-      name: 'Dr. Sameer Sen',
-      email: 's.sen@safdarjung.nic.in',
-      role: 'BLOOD_BANK_OFFICER',
-      hospitalId: 'hosp-2',
-      hospitalName: 'Safdarjung Hospital Regional Blood Centre',
-      phone: '+91 98111 22334',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150',
-      createdAt: '2026-02-01T10:00:00Z',
-    },
-    {
-      id: 'usr-extra-2',
-      name: 'Sister Anita Kaul',
-      email: 'a.kaul@maxhealthcare.com',
-      role: 'EMERGENCY_COORDINATOR',
-      hospitalId: 'hosp-4',
-      hospitalName: 'Max Super Speciality Hospital',
-      phone: '+91 98112 33445',
-      status: 'ACTIVE',
-      avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=150',
-      createdAt: '2026-02-15T12:00:00Z',
-    },
   ]);
+
+  useEffect(() => {
+    apiService
+      .getDemoUsers()
+      .then((rawUsers) => {
+        if (rawUsers && rawUsers.length > 0) {
+          setUserList(rawUsers.map(adaptUser));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'ALL'>('ALL');

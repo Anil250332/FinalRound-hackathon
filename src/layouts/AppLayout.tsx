@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { Header } from '../components/common/Header';
 import { Sidebar } from '../components/common/Sidebar';
+import { fetchHospitals } from '../store/slices/hospitalSlice';
+import { fetchEmergencyRequests } from '../store/slices/emergencySlice';
+import { fetchHospitalInventory } from '../store/slices/inventorySlice';
+import { fetchHospitalTransfers } from '../store/slices/transferSlice';
+import { fetchNotifications } from '../store/slices/notificationSlice';
+import { checkServerHealth } from '../services/api';
+import { setServerAwake } from '../store/slices/authSlice';
 
 export const AppLayout: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { currentUser } = useAppSelector((state) => state.auth);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    checkServerHealth().then((isHealthy) => {
+      dispatch(setServerAwake(isHealthy));
+    });
+
+    dispatch(fetchHospitals());
+    dispatch(fetchEmergencyRequests());
+    dispatch(fetchNotifications());
+
+    if (currentUser?.hospitalId) {
+      dispatch(fetchHospitalInventory(currentUser.hospitalId));
+      dispatch(fetchHospitalTransfers(currentUser.hospitalId));
+    }
+  }, [dispatch, currentUser?.hospitalId]);
 
   return (
     <div className="min-h-screen bg-[#f0f7f6] flex flex-row font-sans">

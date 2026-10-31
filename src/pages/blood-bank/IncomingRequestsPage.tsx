@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { submitOffer } from '../../store/slices/emergencySlice';
+import { submitOffer, submitOfferApi } from '../../store/slices/emergencySlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { EmergencyRequest } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { SkeletonRequestCard } from '../../components/common/Skeleton';
 import {
   Inbox,
   Send,
@@ -21,7 +22,7 @@ import {
 export const IncomingRequestsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { requests } = useAppSelector((state) => state.emergency);
+  const { requests, isLoading } = useAppSelector((state) => state.emergency);
   const { items } = useAppSelector((state) => state.inventory);
 
   const hospitalId = currentUser?.hospitalId || 'hosp-1';
@@ -50,6 +51,14 @@ export const IncomingRequestsPage: React.FC = () => {
   const handleSendOfferSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedReqForOffer) return;
+
+    dispatch(
+      submitOfferApi({
+        requestId: selectedReqForOffer.id,
+        offeredUnits: offerUnits,
+        notes: offerNotes,
+      })
+    );
 
     dispatch(
       submitOffer({
@@ -115,7 +124,13 @@ export const IncomingRequestsPage: React.FC = () => {
 
       {/* Broadcast Cards Grid */}
       <div className="space-y-4">
-        {incomingBroadcasts.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4">
+            <SkeletonRequestCard />
+            <SkeletonRequestCard />
+            <SkeletonRequestCard />
+          </div>
+        ) : incomingBroadcasts.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
             <h3 className="font-bold text-slate-900 text-sm">No Pending Emergency Requirements</h3>

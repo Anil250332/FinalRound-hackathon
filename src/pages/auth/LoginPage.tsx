@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/redux';
-import { setRole, loginSuccess } from '../../store/slices/authSlice';
+import { setRole, loginSuccess, loginUserThunk } from '../../store/slices/authSlice';
 import { DEMO_USERS } from '../../services/mockData';
 import { UserRole } from '../../types';
 import {
@@ -52,21 +52,53 @@ export const LoginPage: React.FC = () => {
       badge: 'Blood Officer',
       route: '/blood-bank/overview',
     },
+    {
+      role: 'EMERGENCY_COORDINATOR' as UserRole,
+      title: 'Emergency Coordinator',
+      user: DEMO_USERS.emergencyCoordinator,
+      desc: 'City Care Hospital: Emergency broadcasts, offers & transfer tracking',
+      icon: Activity,
+      badge: 'Coordinator',
+      route: '/coordinator/overview',
+    },
   ];
 
-  const handleDemoLogin = (account: (typeof demoAccounts)[0]) => {
+  const handleDemoLogin = async (account: (typeof demoAccounts)[0]) => {
     setIsLoading(true);
-    setTimeout(() => {
-      dispatch(setRole(account.role));
-      dispatch(loginSuccess({ user: account.user, token: `demo-token-${account.role.toLowerCase()}` }));
-      setIsLoading(false);
-      navigate(account.route);
-    }, 200);
+    try {
+      await dispatch(loginUserThunk({ email: account.user.email, password: 'Password@123' }));
+    } catch {
+      // Fallback
+    }
+    dispatch(setRole(account.role));
+    setIsLoading(false);
+    navigate(account.route);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    setIsLoading(true);
+    try {
+      const resultAction = await dispatch(loginUserThunk({ email, password: password || 'Password@123' }));
+      if (loginUserThunk.fulfilled.match(resultAction)) {
+        const user = resultAction.payload.user;
+        const targetRoute =
+          user.role === 'SUPER_ADMIN'
+            ? '/super-admin/overview'
+            : user.role === 'HOSPITAL_ADMIN'
+            ? '/hospital-admin/overview'
+            : user.role === 'BLOOD_BANK_OFFICER'
+            ? '/blood-bank/overview'
+            : '/coordinator/overview';
+        setIsLoading(false);
+        navigate(targetRoute);
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+    setIsLoading(false);
     const matchedAccount = demoAccounts.find((a) => a.user.email.toLowerCase() === email.toLowerCase()) || demoAccounts[0];
     handleDemoLogin(matchedAccount);
   };
