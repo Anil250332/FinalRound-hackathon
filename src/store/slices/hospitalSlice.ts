@@ -58,6 +58,18 @@ export const createHospitalThunk = createAsyncThunk(
   }
 );
 
+export const updateHospitalThunk = createAsyncThunk(
+  'hospitals/updateHospitalThunk',
+  async ({ id, changes }: { id: string; changes: any }, { rejectWithValue }) => {
+    try {
+      const hospital = await apiService.updateHospital(id, changes);
+      return hospital;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to update hospital');
+    }
+  }
+);
+
 export const hospitalSlice = createSlice({
   name: 'hospitals',
   initialState,

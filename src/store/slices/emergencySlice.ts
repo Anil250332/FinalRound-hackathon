@@ -50,7 +50,10 @@ export const createEmergencyRequestApi = createAsyncThunk(
 
 export const submitOfferApi = createAsyncThunk(
   'emergency/submitOfferApi',
-  async (data: { requestId: string; offeredUnits: number; notes?: string }, { rejectWithValue }) => {
+  async (
+    data: { requestId: string; offeredUnits: number; notes?: string; offeringHospitalId?: string },
+    { rejectWithValue }
+  ) => {
     try {
       const offer = await apiService.submitOffer(data);
       return { requestId: data.requestId, offer };

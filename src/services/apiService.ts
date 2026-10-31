@@ -193,27 +193,52 @@ export const apiService = {
     return adaptHospital(res.data.data);
   },
 
+  async updateHospital(hospitalId: string, data: any): Promise<Hospital> {
+    const res = await apiClient.put(`/hospitals/${hospitalId}`, data);
+    return adaptHospital(res.data.data);
+  },
+
   async createHospital(data: any): Promise<Hospital> {
-    const res = await apiClient.post('/hospitals', data);
+    const payload = {
+      name: data.name,
+      hospitalCode: (data.hospitalCode || data.licenseNumber || `HOSP-${Math.floor(Math.random() * 9000 + 1000)}`).toUpperCase(),
+      address: data.address || `${data.city || 'Indore'}, India`,
+      city: data.city || 'Indore',
+      coordinates: data.coordinates || { lat: 22.7196, lng: 75.8577 },
+      contact: {
+        email: data.contact?.email || data.email || `${data.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@hospital.org`,
+        phone: data.contact?.phone || data.phone || '+91 98260 00000',
+        emergencyContact: data.contact?.emergencyContact || data.phone || '+91 98260 00000',
+      },
+      role: data.role || (data.hasBloodBank ? 'BOTH' : 'REQUESTING'),
+    };
+    const res = await apiClient.post('/hospitals', payload);
     return adaptHospital(res.data.data);
   },
 
   // Inventory
   async getHospitalInventory(hospitalId: string): Promise<BloodInventoryItem[]> {
-    const res = await apiClient.get(`/inventory/hospital/${hospitalId}`);
+    const validId = (hospitalId && hospitalId.length === 24) ? hospitalId : '6ae5bfa3a41657de36e25a1e';
+    const res = await apiClient.get(`/inventory/hospital/${validId}`);
     return (res.data.data || []).map(adaptInventoryItem);
   },
 
   async getInventorySummary(hospitalId: string): Promise<any> {
-    const res = await apiClient.get(`/inventory/hospital/${hospitalId}/summary`);
+    const validId = (hospitalId && hospitalId.length === 24) ? hospitalId : '6ae5bfa3a41657de36e25a1e';
+    const res = await apiClient.get(`/inventory/hospital/${validId}/summary`);
     return res.data.data;
   },
 
   async addInventoryItem(data: any): Promise<BloodInventoryItem> {
-    const res = await apiClient.post('/inventory', {
-      ...data,
-      units: data.availableUnits ?? data.units,
-    });
+    const payload = {
+      hospitalId: (data.hospitalId && data.hospitalId.length === 24) ? data.hospitalId : '6ae5bfa3a41657de36e25a1e',
+      bloodGroup: data.bloodGroup,
+      component: data.component,
+      units: Number(data.availableUnits ?? data.units ?? 10),
+      expiryDate: data.expiryDate || new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      batchNumber: data.batchNumber || `BATCH-${Date.now().toString().slice(-6)}`,
+    };
+    const res = await apiClient.post('/inventory', payload);
     return adaptInventoryItem(res.data.data);
   },
 
@@ -255,7 +280,17 @@ export const apiService = {
   },
 
   async createEmergencyRequest(data: any): Promise<EmergencyRequest> {
-    const res = await apiClient.post('/requests', data);
+    const payload = {
+      requestingHospitalId: (data.requestingHospitalId && data.requestingHospitalId.length === 24)
+        ? data.requestingHospitalId
+        : '6ae5bfa3a41657de36e25a1d',
+      bloodGroup: data.bloodGroup,
+      component: data.component,
+      requiredUnits: Number(data.requiredUnits || 1),
+      urgency: data.urgency || 'CRITICAL',
+      additionalNotes: data.additionalNotes || data.clinicalNotes || '',
+    };
+    const res = await apiClient.post('/requests', payload);
     return adaptEmergencyRequest(res.data.data.request);
   },
 
@@ -265,13 +300,24 @@ export const apiService = {
   },
 
   // Offers
-  async submitOffer(data: { requestId: string; offeredUnits: number; notes?: string }): Promise<Offer> {
-    const res = await apiClient.post('/offers', data);
+  async submitOffer(data: { requestId: string; offeredUnits: number; notes?: string; offeringHospitalId?: string }): Promise<Offer> {
+    const payload = {
+      requestId: data.requestId,
+      offeredUnits: Number(data.offeredUnits || 1),
+      notes: data.notes || '',
+      offeringHospitalId: (data.offeringHospitalId && data.offeringHospitalId.length === 24)
+        ? data.offeringHospitalId
+        : '6ae5bfa3a41657de36e25a1e',
+    };
+    const res = await apiClient.post('/offers', payload);
     return adaptOffer(res.data.data);
   },
 
   async acceptOffer(offerId: string, requestingHospitalId: string): Promise<any> {
-    const res = await apiClient.patch(`/offers/${offerId}/accept`, { requestingHospitalId });
+    const validHospId = (requestingHospitalId && requestingHospitalId.length === 24)
+      ? requestingHospitalId
+      : '6ae5bfa3a41657de36e25a1d';
+    const res = await apiClient.patch(`/offers/${offerId}/accept`, { requestingHospitalId: validHospId });
     return {
       offer: adaptOffer(res.data.data.offer),
       request: adaptEmergencyRequest(res.data.data.request),

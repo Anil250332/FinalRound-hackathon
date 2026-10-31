@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { updateHospitalProfile } from '../../store/slices/hospitalSlice';
+import { updateHospitalProfile, updateHospitalThunk, fetchHospitals } from '../../store/slices/hospitalSlice';
 import {
   Building2,
   MapPin,
@@ -65,9 +65,13 @@ export const HospitalProfilePage: React.FC = () => {
 
   const [isSaved, setIsSaved] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(updateHospitalProfile({ id: currentHosp.id, changes: formData }));
+    if (currentHosp.id && currentHosp.id.length === 24) {
+      await dispatch(updateHospitalThunk({ id: currentHosp.id, changes: formData }));
+      dispatch(fetchHospitals());
+    }
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };

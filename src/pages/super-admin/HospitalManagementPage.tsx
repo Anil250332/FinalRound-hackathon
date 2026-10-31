@@ -53,9 +53,10 @@ export const HospitalManagementPage: React.FC = () => {
     hasBloodBank: true,
   });
 
-  const handleVerify = (hospitalId: string, hospitalName: string) => {
+  const handleVerify = async (hospitalId: string, hospitalName: string) => {
     dispatch(verifyHospital(hospitalId));
-    dispatch(verifyHospitalThunk({ id: hospitalId, status: 'VERIFIED' }));
+    await dispatch(verifyHospitalThunk({ id: hospitalId, status: 'VERIFIED' }));
+    dispatch(fetchHospitals());
     dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',
@@ -69,8 +70,10 @@ export const HospitalManagementPage: React.FC = () => {
     );
   };
 
-  const handleSuspend = (hospitalId: string, hospitalName: string) => {
+  const handleSuspend = async (hospitalId: string, hospitalName: string) => {
     dispatch(suspendHospital(hospitalId));
+    await dispatch(verifyHospitalThunk({ id: hospitalId, status: 'SUSPENDED' }));
+    dispatch(fetchHospitals());
     dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',
@@ -84,10 +87,29 @@ export const HospitalManagementPage: React.FC = () => {
     );
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHosp.name || !newHosp.licenseNumber) return;
-    dispatch(addHospital(newHosp));
+    setIsAddModalOpen(false);
+
+    // Persist in live MongoDB Atlas backend
+    await dispatch(
+      createHospitalThunk({
+        name: newHosp.name,
+        hospitalCode: newHosp.licenseNumber,
+        licenseNumber: newHosp.licenseNumber,
+        address: newHosp.address || `${newHosp.city || 'Indore'}, India`,
+        city: newHosp.city || 'Indore',
+        phone: newHosp.phone || '+91 98260 00000',
+        email: newHosp.email || `${newHosp.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@hospital.org`,
+        hasBloodBank: newHosp.hasBloodBank,
+        coordinates: newHosp.coordinates || { lat: 22.7196, lng: 75.8577 },
+        role: newHosp.hasBloodBank ? 'BOTH' : 'REQUESTING',
+      })
+    );
+    // Refresh to verify persistence
+    dispatch(fetchHospitals());
+
     dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',
@@ -99,7 +121,6 @@ export const HospitalManagementPage: React.FC = () => {
         ipAddress: '103.21.144.10',
       })
     );
-    setIsAddModalOpen(false);
     setNewHosp({
       name: '',
       licenseNumber: '',
@@ -107,12 +128,12 @@ export const HospitalManagementPage: React.FC = () => {
       email: '',
       phone: '',
       address: '',
-      city: 'New Delhi',
-      state: 'Delhi',
-      pincode: '110001',
-      coordinates: { lat: 28.6139, lng: 77.209 },
+      city: 'Indore',
+      state: 'Madhya Pradesh',
+      pincode: '452001',
+      coordinates: { lat: 22.7196, lng: 75.8577 },
       verified: false,
-      status: 'PENDING_VERIFICATION',
+      status: 'PENDING_VERIFICATION' as const,
       totalBeds: 200,
       hasBloodBank: true,
     });

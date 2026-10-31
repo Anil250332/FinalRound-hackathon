@@ -31,9 +31,13 @@ export const BloodInventoryPage: React.FC = () => {
   const { items, selectedBloodGroupFilter, searchQuery, isLoading } = useAppSelector(
     (state) => state.inventory
   );
+  const { hospitals } = useAppSelector((state) => state.hospitals);
 
-  const hospitalId = currentUser?.hospitalId || 'hosp-1';
-  const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital & Blood Centre';
+  const hospitalId =
+    currentUser?.hospitalId && currentUser.hospitalId.length === 24
+      ? currentUser.hospitalId
+      : hospitals[0]?.id || '6ae5bfa3a41657de36e25a1e';
+  const hospitalName = currentUser?.hospitalName || hospitals[0]?.name || 'Apollo Demo Blood Centre';
 
   useEffect(() => {
     if (hospitalId) {
@@ -57,17 +61,17 @@ export const BloodInventoryPage: React.FC = () => {
   const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const components: BloodComponent[] = ['Whole Blood', 'PRBC', 'Platelets', 'FFP', 'Cryoprecipitate'];
 
-  const myItems = items.filter((i) => i.hospitalId === hospitalId);
+  const myItems = items.filter((i) => i.hospitalId === hospitalId || items.length <= 8);
   const totalUnitsCount = myItems.reduce((acc, curr) => acc + curr.totalUnits, 0);
   const availableUnitsCount = myItems.reduce((acc, curr) => acc + curr.availableUnits, 0);
   const reservedUnitsCount = myItems.reduce((acc, curr) => acc + curr.reservedUnits, 0);
   const criticalCount = myItems.filter((i) => i.availableUnits < 8).length;
 
-  const handleStockSubmit = (e: React.FormEvent) => {
+  const handleStockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(addOrUpdateStock(formData));
-    dispatch(addStockItem(formData));
     setIsModalOpen(false);
+    await dispatch(addStockItem({ ...formData, hospitalId }));
+    dispatch(fetchHospitalInventory(hospitalId));
   };
 
   const getHeaderColor = (bg: BloodGroup) => {

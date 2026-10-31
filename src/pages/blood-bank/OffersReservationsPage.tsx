@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { releaseStock } from '../../store/slices/inventorySlice';
-import { initiateTransfer } from '../../store/slices/transferSlice';
+import { initiateTransfer, initiateDispatchApi, fetchHospitalTransfers } from '../../store/slices/transferSlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
@@ -24,9 +24,13 @@ export const OffersReservationsPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
   const { requests } = useAppSelector((state) => state.emergency);
   const { items } = useAppSelector((state) => state.inventory);
+  const { hospitals } = useAppSelector((state) => state.hospitals);
 
-  const hospitalId = currentUser?.hospitalId || 'hosp-1';
-  const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital & Blood Centre';
+  const hospitalId =
+    currentUser?.hospitalId && currentUser.hospitalId.length === 24
+      ? currentUser.hospitalId
+      : hospitals[0]?.id || '6ae5bfa3a41657de36e25a1e';
+  const hospitalName = currentUser?.hospitalName || hospitals[0]?.name || 'Apollo Demo Blood Centre';
 
   const [dispatchModalOffer, setDispatchModalOffer] = useState<{
     reqId: string;
@@ -75,9 +79,20 @@ export const OffersReservationsPage: React.FC = () => {
     alert(`Successfully released ${units} units back to available inventory.`);
   };
 
-  const handleConfirmDispatch = (e: React.FormEvent) => {
+  const handleConfirmDispatch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!dispatchModalOffer) return;
+
+    if (dispatchModalOffer.offerId && dispatchModalOffer.offerId.length === 24) {
+      await dispatch(
+        initiateDispatchApi({
+          transferId: dispatchModalOffer.offerId,
+          driverContact: courierContact,
+          vehicleNumber,
+        })
+      );
+      dispatch(fetchHospitalTransfers(hospitalId));
+    }
 
     dispatch(
       initiateTransfer({

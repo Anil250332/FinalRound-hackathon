@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { createRequest, createEmergencyRequestApi } from '../../store/slices/emergencySlice';
+import { createRequest, createEmergencyRequestApi, fetchEmergencyRequests } from '../../store/slices/emergencySlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { BloodGroup, BloodComponent, UrgencyLevel } from '../../types';
 import {
@@ -23,8 +23,11 @@ export const CreateEmergencyRequestPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
   const { hospitals } = useAppSelector((state) => state.hospitals);
 
-  const hospitalId = currentUser?.hospitalId || 'hosp-3';
-  const hospitalName = currentUser?.hospitalName || 'Fortis Memorial Emergency Centre';
+  const hospitalId =
+    currentUser?.hospitalId && currentUser.hospitalId.length === 24
+      ? currentUser.hospitalId
+      : hospitals[0]?.id || '6ae5bfa3a41657de36e25a1d';
+  const hospitalName = currentUser?.hospitalName || hospitals[0]?.name || 'City Care Hospital';
 
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>('O-');
   const [component, setComponent] = useState<BloodComponent>('PRBC');
@@ -41,11 +44,11 @@ export const CreateEmergencyRequestPage: React.FC = () => {
   const bloodGroups: BloodGroup[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const components: BloodComponent[] = ['Whole Blood', 'PRBC', 'Platelets', 'FFP', 'Cryoprecipitate'];
 
-  const handleBroadcastSubmit = (e: React.FormEvent) => {
+  const handleBroadcastSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsBroadcasting(true);
 
-    dispatch(
+    await dispatch(
       createEmergencyRequestApi({
         requestingHospitalId: hospitalId,
         bloodGroup,
@@ -56,45 +59,30 @@ export const CreateEmergencyRequestPage: React.FC = () => {
       })
     );
 
-    setTimeout(() => {
-      dispatch(
-        createRequest({
-          requestingHospitalId: hospitalId,
-          requestingHospitalName: hospitalName,
-          requestingHospitalCity: 'Gurugram',
-          patientReferenceId,
-          bloodGroup,
-          component,
-          requiredUnits,
-          urgency,
-          requiredByTime,
-          clinicalNotes,
-        })
-      );
+    dispatch(fetchEmergencyRequests());
 
-      dispatch(
-        addAuditLog({
-          userId: currentUser?.id || 'usr-ec-1',
-          userName: currentUser?.name || 'Dr. Neha Desai',
-          userRole: 'EMERGENCY_COORDINATOR',
-          action: 'BROADCAST_REQUEST',
-          targetResource: `${bloodGroup} ${component} (${requiredUnits} Units)`,
-          details: `Broadcasted urgent requirement (${urgency}) to regional hospital network`,
-          ipAddress: '103.21.144.12',
-        })
-      );
+    dispatch(
+      addAuditLog({
+        userId: currentUser?.id || 'usr-ec-1',
+        userName: currentUser?.name || 'Dr. Vikram Joshi',
+        userRole: 'EMERGENCY_COORDINATOR',
+        action: 'BROADCAST_REQUEST',
+        targetResource: `${bloodGroup} ${component} (${requiredUnits} Units)`,
+        details: `Broadcasted urgent requirement (${urgency}) to regional hospital network`,
+        ipAddress: '103.21.144.12',
+      })
+    );
 
-      dispatch(
-        addNotification({
-          title: 'Emergency Requirement Broadcasted',
-          message: `Your broadcast for ${requiredUnits} Units ${bloodGroup} ${component} was transmitted to 5 participating centres.`,
-          type: 'CRITICAL',
-        })
-      );
+    dispatch(
+      addNotification({
+        title: 'Emergency Requirement Broadcasted',
+        message: `Your broadcast for ${requiredUnits} Units ${bloodGroup} ${component} was transmitted to participating regional blood centres.`,
+        type: 'CRITICAL',
+      })
+    );
 
-      setIsBroadcasting(false);
-      navigate('/coordinator/requests');
-    }, 400);
+    setIsBroadcasting(false);
+    navigate('/coordinator/requests');
   };
 
   return (

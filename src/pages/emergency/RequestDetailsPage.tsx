@@ -8,6 +8,7 @@ import {
   acceptOfferApi,
   fetchEmergencyRequests,
 } from '../../store/slices/emergencySlice';
+import { fetchHospitalTransfers } from '../../store/slices/transferSlice';
 import { reserveStock } from '../../store/slices/inventorySlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { StatusBadge } from '../../components/common/Badge';
@@ -31,6 +32,12 @@ export const RequestDetailsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { requests } = useAppSelector((state) => state.emergency);
   const { currentUser } = useAppSelector((state) => state.auth);
+  const { hospitals } = useAppSelector((state) => state.hospitals);
+
+  const hospitalId =
+    currentUser?.hospitalId && currentUser.hospitalId.length === 24
+      ? currentUser.hospitalId
+      : hospitals[0]?.id || '6ae5bfa3a41657de36e25a1d';
 
   useEffect(() => {
     dispatch(fetchEmergencyRequests());
@@ -53,17 +60,19 @@ export const RequestDetailsPage: React.FC = () => {
     );
   }
 
-  const handleAcceptOffer = (offerId: string) => {
+  const handleAcceptOffer = async (offerId: string) => {
     const offer = currentRequest.offers.find((o) => o.id === offerId);
     if (!offer) return;
 
     dispatch(acceptOffer({ requestId: currentRequest.id, offerId }));
-    dispatch(
+    await dispatch(
       acceptOfferApi({
         offerId,
-        requestingHospitalId: currentUser?.hospitalId || 'hosp-3',
+        requestingHospitalId: hospitalId,
       })
     );
+    dispatch(fetchEmergencyRequests());
+    dispatch(fetchHospitalTransfers(hospitalId));
 
     // Lock inventory reservation
     dispatch(

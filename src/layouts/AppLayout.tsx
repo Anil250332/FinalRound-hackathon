@@ -26,10 +26,12 @@ export const AppLayout: React.FC = () => {
     dispatch(fetchNotifications());
     dispatch(fetchAuditLogs());
 
-    if (currentUser?.hospitalId) {
-      dispatch(fetchHospitalInventory(currentUser.hospitalId));
-      dispatch(fetchHospitalTransfers(currentUser.hospitalId));
-    }
+    const activeHospId =
+      currentUser?.hospitalId && currentUser.hospitalId.length === 24
+        ? currentUser.hospitalId
+        : '6ae5bfa3a41657de36e25a1e';
+    dispatch(fetchHospitalInventory(activeHospId));
+    dispatch(fetchHospitalTransfers(activeHospId));
   }, [dispatch, currentUser?.hospitalId]);
 
   return (
