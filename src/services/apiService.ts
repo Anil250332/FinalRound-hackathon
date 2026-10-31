@@ -220,6 +220,9 @@ export const apiService = {
         emergencyContact: data.contact?.emergencyContact || data.phone || '+91 98260 00000',
       },
       role: data.role || (data.hasBloodBank ? 'BOTH' : 'REQUESTING'),
+      adminName: data.adminName,
+      adminEmail: data.adminEmail || data.contact?.email || data.email,
+      adminPassword: data.adminPassword || 'Password@123',
     };
     const res = await apiClient.post('/hospitals', payload);
     return adaptHospital(res.data.data);
