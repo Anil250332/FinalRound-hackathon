@@ -126,6 +126,31 @@ export const LoginPage: React.FC = () => {
       console.warn(err);
     }
 
+    // Check cached registered hospital doctors/officers in localStorage
+    try {
+      const registeredUsers = JSON.parse(localStorage.getItem('pulserelay_registered_users') || '[]');
+      const matchedDoctor = registeredUsers.find(
+        (a: any) => a.email.toLowerCase() === cleanEmail && (!password || a.password === cleanPass)
+      );
+      if (matchedDoctor) {
+        dispatch(
+          loginSuccess({
+            user: matchedDoctor.user,
+            token: 'local-jwt-' + Date.now(),
+          })
+        );
+        setIsLoading(false);
+        if (matchedDoctor.user.role === 'HOSPITAL_ADMIN') {
+          navigate('/hospital-admin/overview');
+        } else {
+          navigate('/blood-bank/overview');
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+
     // Check DEMO_USERS
     const demoMatch = Object.values(DEMO_USERS).find(
       (u) => u.email.toLowerCase() === cleanEmail

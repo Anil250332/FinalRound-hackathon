@@ -123,7 +123,7 @@ export const HospitalManagementPage: React.FC = () => {
           email: newHosp.email || effectiveAdminEmail,
           emergencyContact: newHosp.phone || '+91 98260 00000',
         },
-        adminName: newHosp.adminName || `${newHosp.name} Head`,
+        adminName: newHosp.name,
         adminEmail: effectiveAdminEmail,
         adminPassword: effectiveAdminPassword,
       })
@@ -138,7 +138,7 @@ export const HospitalManagementPage: React.FC = () => {
         password: effectiveAdminPassword,
         user: {
           id: createdHosp?.id || `hosp-admin-${Date.now()}`,
-          name: newHosp.adminName || `${newHosp.name} Head`,
+          name: newHosp.name,
           email: effectiveAdminEmail,
           role: 'HOSPITAL_ADMIN',
           hospitalId: createdHosp?.id || `hosp-${Date.now()}`,
@@ -493,45 +493,34 @@ export const HospitalManagementPage: React.FC = () => {
             </label>
           </div>
 
-          {/* Hospital Admin Login Account Credentials */}
+          {/* Hospital Login Account Credentials */}
           <div className="pt-4 border-t border-slate-200 mt-2">
             <div className="flex items-center gap-1.5 mb-1 text-[#0d9488]">
               <Lock className="w-4 h-4 text-emerald-600" />
               <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-900">
-                Hospital Head / Admin Login Credentials
+                Hospital Login Credentials
               </h4>
             </div>
             <p className="text-[11px] text-slate-400 mb-3">
-              These credentials allow the Hospital Administrator to log into their Hospital Dashboard.
+              Set the login email and password for this hospital to access the Hospital Dashboard. Once logged in, the hospital can add its own doctors and staff.
             </p>
 
             <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Hospital Head / Doctor Name</label>
-                <input
-                  type="text"
-                  value={newHosp.adminName}
-                  onChange={(e) => setNewHosp({ ...newHosp, adminName: e.target.value })}
-                  placeholder="e.g. Dr. Sunita Deshmukh"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-hidden text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Admin Login Email *</label>
+                  <label className="block font-bold text-slate-700 mb-1">Hospital Login Email *</label>
                   <input
                     type="email"
                     required
                     value={newHosp.adminEmail}
                     onChange={(e) => setNewHosp({ ...newHosp, adminEmail: e.target.value })}
-                    placeholder="admin@hospital.org"
+                    placeholder="hospital@domain.org"
                     className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-hidden text-xs font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Admin Password *</label>
+                  <label className="block font-bold text-slate-700 mb-1">Hospital Password *</label>
                   <input
                     type="password"
                     required

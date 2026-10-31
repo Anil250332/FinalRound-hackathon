@@ -31,6 +31,11 @@ export const StaffManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdDoctorBanner, setCreatedDoctorBanner] = useState<{
+    name: string;
+    email: string;
+    password?: string;
+  } | null>(null);
 
   // New staff form state
   const [newStaff, setNewStaff] = useState({
@@ -93,6 +98,34 @@ export const StaffManagementPage: React.FC = () => {
         role: newStaff.role,
         hospitalId,
       });
+
+      // Cache for offline/immediate local login
+      try {
+        const existingUsers = JSON.parse(localStorage.getItem('pulserelay_registered_users') || '[]');
+        existingUsers.push({
+          email: newStaff.email.toLowerCase().trim(),
+          password: newStaff.password.trim(),
+          user: {
+            id: created?.id || `doc-${Date.now()}`,
+            name: newStaff.name,
+            email: newStaff.email.toLowerCase().trim(),
+            role: newStaff.role || 'BLOOD_BANK_OFFICER',
+            hospitalId,
+            hospitalName,
+            phone: newStaff.phone || '',
+            status: 'ACTIVE',
+          },
+        });
+        localStorage.setItem('pulserelay_registered_users', JSON.stringify(existingUsers));
+      } catch (err) {
+        console.warn(err);
+      }
+
+      setCreatedDoctorBanner({
+        name: newStaff.name,
+        email: newStaff.email,
+        password: newStaff.password,
+      });
       setStaffList([created, ...staffList]);
       setIsModalOpen(false);
       setNewStaff({
@@ -128,10 +161,10 @@ export const StaffManagementPage: React.FC = () => {
               <span>Hospital Officer Management</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Hospital Officers & User Management
+              Doctors & Blood Bank Officers
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Add, activate, deactivate, or delete Blood Bank Officers assigned under {hospitalName}.
+              Add and manage doctors and blood bank officers under {hospitalName}. Created doctors can sign in to the platform with their assigned login credentials.
             </p>
           </div>
 
@@ -141,7 +174,7 @@ export const StaffManagementPage: React.FC = () => {
               className="px-5 py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-2xl text-xs font-bold shadow-md shadow-teal-700/20 transition-all flex items-center space-x-2 cursor-pointer"
             >
               <UserPlus className="w-4 h-4" />
-              <span>Add New Officer</span>
+              <span>Add New Doctor / Officer</span>
             </button>
             <button
               onClick={loadStaff}
@@ -152,6 +185,40 @@ export const StaffManagementPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {createdDoctorBanner && (
+          <div className="mt-5 p-4 rounded-2xl bg-teal-50 border border-teal-200 text-slate-800 shadow-sm animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#0d9488]">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <h4 className="font-extrabold text-sm text-slate-900">
+                  Doctor Account Created Successfully!
+                </h4>
+              </div>
+              <button
+                onClick={() => setCreatedDoctorBanner(null)}
+                className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+            <p className="text-xs text-slate-600 mt-1">
+              <strong>{createdDoctorBanner.name}</strong> can now log into the Doctor / Officer Dashboard using these credentials:
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-3">
+              <div className="bg-white px-3 py-1.5 rounded-xl border border-teal-100 text-xs">
+                <span className="text-[10px] text-slate-400 font-bold uppercase block">Login Email</span>
+                <span className="font-mono font-bold text-slate-900">{createdDoctorBanner.email}</span>
+              </div>
+              {createdDoctorBanner.password && (
+                <div className="bg-white px-3 py-1.5 rounded-xl border border-teal-100 text-xs">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Password</span>
+                  <span className="font-mono font-bold text-slate-900">{createdDoctorBanner.password}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Quick Counters */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">
@@ -277,12 +344,12 @@ export const StaffManagementPage: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add Blood Bank Officer"
-        subtitle={`Create new officer account for ${hospitalName}`}
+        title="Add Doctor / Blood Bank Officer"
+        subtitle={`Create new doctor login account under ${hospitalName}`}
       >
         <form onSubmit={handleAddStaff} className="space-y-4 text-xs">
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Full Name</label>
+            <label className="block font-bold text-slate-700 mb-1">Doctor / Officer Full Name</label>
             <input
               type="text"
               required
@@ -300,7 +367,7 @@ export const StaffManagementPage: React.FC = () => {
               required
               value={newStaff.email}
               onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })}
-              placeholder="officer@hospital.org"
+              placeholder="doctor@hospital.org"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden"
             />
           </div>
@@ -312,13 +379,13 @@ export const StaffManagementPage: React.FC = () => {
               required
               value={newStaff.password}
               onChange={(e) => setNewStaff({ ...newStaff, password: e.target.value })}
-              placeholder="Set a password for the officer"
+              placeholder="Set login password for doctor"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block font-bold text-slate-700 mb-1">Mobile Phone (For Alerts & Coordination)</label>
+            <label className="block font-bold text-slate-700 mb-1">Mobile Phone (For Emergency Alerts)</label>
             <input
               type="text"
               required
@@ -342,7 +409,7 @@ export const StaffManagementPage: React.FC = () => {
               disabled={isSubmitting}
               className="px-4 py-2 rounded-xl bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] shadow-md shadow-teal-700/20 cursor-pointer"
             >
-              {isSubmitting ? 'Creating...' : 'Create Officer Account'}
+              {isSubmitting ? 'Creating...' : 'Create Doctor Account'}
             </button>
           </div>
         </form>
