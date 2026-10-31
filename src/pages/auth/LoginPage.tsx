@@ -181,7 +181,7 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-[#f0f7f6] flex flex-col justify-center items-center p-4 sm:p-8">
       {/* Brand Header */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-600/20 mb-3 animate-hospital-pulse">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-600/20 mb-3 animate-hospital-pulse">
           <Activity className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-1.5">

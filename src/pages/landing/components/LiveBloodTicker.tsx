@@ -226,8 +226,7 @@ export const LiveBloodTicker: React.FC = () => {
                   <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${b.accentGradient} text-white font-black text-xs flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0`}>
                     {b.group}
                   </div>
-                  <span className={`inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border leading-tight ${b.badgeStyle}`}>
-                    <span className={`w-1 h-1 rounded-full ${b.dotColor} shrink-0 ${b.isShortage ? 'animate-pulse' : ''}`} />
+                  <span className={`inline-flex items-center text-[9px] font-semibold px-1.5 py-0.5 rounded-full border leading-tight ${b.badgeStyle}`}>
                     {b.status}
                   </span>
                 </div>

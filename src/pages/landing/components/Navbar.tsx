@@ -1,70 +1,46 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Activity, ArrowRight, Menu, X } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface RollingNavLinkProps {
   href: string;
   label: string;
-  badge?: React.ReactNode;
 }
 
-const RollingNavLink: React.FC<RollingNavLinkProps> = ({ href, label, badge }) => {
+const RollingNavLink: React.FC<RollingNavLinkProps> = ({ href, label }) => {
   const letters = label.split('');
 
   return (
-    <motion.a
+    <a
       href={href}
-      initial="initial"
-      whileHover="hovered"
-      className="relative inline-flex items-center overflow-hidden py-1 text-xs font-semibold text-slate-600 cursor-pointer select-none"
+      className="group relative inline-flex items-center overflow-hidden px-3.5 py-2 text-xs font-bold text-slate-600 hover:text-teal-900 rounded-xl hover:bg-teal-500/10 transition-colors duration-200 cursor-pointer select-none"
     >
-      <span className="relative inline-flex overflow-hidden">
-        {/* Primary Row (scrolls up on hover) */}
-        <span className="inline-flex">
-          {letters.map((char, i) => (
-            <motion.span
-              key={i}
-              variants={{
-                initial: { y: 0 },
-                hovered: { y: '-110%' },
-              }}
-              transition={{
-                duration: 0.28,
-                ease: [0.33, 1, 0.68, 1],
-                delay: i * 0.018,
-              }}
-              className="inline-block"
+      <span className="inline-flex overflow-hidden">
+        {letters.map((char, i) => (
+          <span
+            key={i}
+            className="relative inline-flex flex-col overflow-hidden leading-tight py-0.5"
+          >
+            {/* Primary Char */}
+            <span
+              className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-[125%]"
+              style={{ transitionDelay: `${i * 18}ms` }}
             >
               {char === ' ' ? '\u00A0' : char}
-            </motion.span>
-          ))}
-        </span>
+            </span>
 
-        {/* Duplicate Row (scrolls up from bottom into view) */}
-        <span className="absolute inset-0 inline-flex">
-          {letters.map((char, i) => (
-            <motion.span
-              key={i}
-              variants={{
-                initial: { y: '110%' },
-                hovered: { y: 0 },
-              }}
-              transition={{
-                duration: 0.28,
-                ease: [0.33, 1, 0.68, 1],
-                delay: i * 0.018,
-              }}
-              className="inline-block text-[#0d6659] font-bold"
+            {/* Duplicate Char (rolls in from bottom) */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 inline-flex items-center text-[#0d6659] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] translate-y-[125%] group-hover:translate-y-0"
+              style={{ transitionDelay: `${i * 18}ms` }}
             >
               {char === ' ' ? '\u00A0' : char}
-            </motion.span>
-          ))}
-        </span>
+            </span>
+          </span>
+        ))}
       </span>
-
-      {badge && <span className="ml-1.5 flex items-center">{badge}</span>}
-    </motion.a>
+    </a>
   );
 };
 
@@ -73,7 +49,7 @@ export const LandingNavbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#f0f7f6]/85 backdrop-blur-md border-b border-emerald-950/5 transition-all">
+    <header className="sticky top-0 z-50 bg-[#f0f7f6]/90 backdrop-blur-md border-b border-emerald-950/5 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo */}
@@ -84,31 +60,18 @@ export const LandingNavbar: React.FC = () => {
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="text-xl font-black tracking-tight text-slate-900">
-                  Pulse<span className="text-[#0d9488]">Relay</span>
+                  Pulse<span className="">Relay</span>
                 </span>
-                <span className="px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
-                  Grid
-                </span>
+                
               </div>
-              <p className="text-[10px] text-slate-500 font-medium hidden sm:block">
-                Emergency Blood Coordination Network
-              </p>
+            
             </div>
           </Link>
 
-          {/* Desktop Nav Links with Staggered Wave Scroll-Up Effect */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Desktop Nav Links with Silky Smooth Rolling Wave Effect */}
+          <nav className="hidden md:flex items-center space-x-1">
             <RollingNavLink href="#how-it-works" label="How It Works" />
-            <RollingNavLink
-              href="#simulator"
-              label="Live Simulator"
-              badge={
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                </span>
-              }
-            />
+            <RollingNavLink href="#simulator" label="Live Simulator" />
             <RollingNavLink href="#features" label="Clinical Features" />
             <RollingNavLink href="#roles" label="Hospital Roles" />
             <RollingNavLink href="#impact" label="Impact" />
@@ -190,4 +153,3 @@ export const LandingNavbar: React.FC = () => {
     </header>
   );
 };
-

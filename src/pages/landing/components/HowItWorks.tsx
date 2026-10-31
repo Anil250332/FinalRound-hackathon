@@ -1,86 +1,91 @@
 import React from 'react';
-import { Radio, Search, CheckCircle2, PhoneCall, ArrowRight } from 'lucide-react';
+import { Radio, Search, CheckCircle2, ShieldCheck } from 'lucide-react';
+
+const steps = [
+  {
+    num: '01',
+    title: 'Broadcast Requirement',
+    desc: 'Clinical staff select blood group, required units, and urgency level. A structured digital beacon broadcasts across the hospital network instantly.',
+    icon: Radio,
+    accent: 'from-emerald-400 to-teal-500',
+    glow: 'shadow-emerald-500/25',
+  },
+  {
+    num: '02',
+    title: 'Instant Network Discovery',
+    desc: 'Participating blood centres within the regional grid receive high-priority alerts with matching stock availability and estimated transit times.',
+    icon: Search,
+    accent: 'from-teal-400 to-cyan-500',
+    glow: 'shadow-teal-500/25',
+  },
+  {
+    num: '03',
+    title: 'Offer Submission & Lock',
+    desc: 'Blood banks submit unit commitments. The requesting facility accepts allocation — instantly locking units to prevent any double-reservation.',
+    icon: CheckCircle2,
+    accent: 'from-sky-400 to-blue-500',
+    glow: 'shadow-sky-500/25',
+  },
+  {
+    num: '04',
+    title: 'Verified Transit & Audit',
+    desc: 'Dispatched units are tracked under cold-chain parameters. The full transaction is permanently recorded in immutable audit logs.',
+    icon: ShieldCheck,
+    accent: 'from-violet-400 to-purple-500',
+    glow: 'shadow-violet-500/25',
+  },
+];
 
 export const HowItWorks: React.FC = () => {
-  const steps = [
-    {
-      step: '01',
-      title: 'Broadcast Emergency Need',
-      desc: 'When an ICU or surgery patient urgently requires blood, hospital staff select blood group, units, and urgency. A live emergency broadcast alert is instantly transmitted.',
-      icon: Radio,
-      badge: 'Step 1: Broadcast',
-    },
-    {
-      step: '02',
-      title: 'Peer Hospital Discovery',
-      desc: 'All verified participating hospitals and blood bank officers in the network receive high-priority alerts with matching real-time inventory visibility.',
-      icon: Search,
-      badge: 'Step 2: Alert',
-    },
-    {
-      step: '03',
-      title: 'Hospital Accepts Request',
-      desc: 'A peer medical centre with available stock steps forward and accepts the emergency request, committing the blood units to save the patient.',
-      icon: CheckCircle2,
-      badge: 'Step 3: Accept',
-    },
-    {
-      step: '04',
-      title: 'Direct Peer Coordination',
-      desc: 'Both hospitals instantly unlock direct contact phone numbers, officer details, and address for rapid, direct peer-to-peer handover and clinical coordination.',
-      icon: PhoneCall,
-      badge: 'Step 4: Mutual Aid',
-    },
-  ];
-
   return (
     <section id="how-it-works" className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-[11px] font-black uppercase tracking-wider text-[#0d9488] bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
-            Hospital Mutual Aid Workflow
+
+        {/* Header */}
+        <div className="text-center max-w-xl mx-auto mb-14">
+          <span className="text-[10px] font-black uppercase tracking-widest text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full">
+            Emergency Workflow
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-3 tracking-tight">
-            How Hospitals Help Hospitals on PulseRelay
+            How PulseRelay Works
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
-            From critical trauma alarm to direct inter-hospital coordination in four seamless stages.
+          <p className="text-sm text-slate-500 mt-2">
+            From critical trauma alarm to verified unit reservation in four seamless stages.
           </p>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((item, idx) => {
-            const Icon = item.icon;
+        {/* Steps — connected flow */}
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Connector line — desktop only */}
+          <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-emerald-300 via-teal-300 to-violet-300 opacity-40" />
+
+          {steps.map((step, i) => {
+            const Icon = step.icon;
             return (
               <div
-                key={idx}
-                className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative flex flex-col justify-between"
+                key={i}
+                className="relative bg-white rounded-2xl p-6 border border-slate-100/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group"
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-black text-slate-200">{item.step}</span>
-                    <div className="w-10 h-10 rounded-2xl bg-teal-50 text-[#0d9488] flex items-center justify-center font-bold">
-                      <Icon className="w-5 h-5 text-[#0d9488]" />
-                    </div>
-                  </div>
+                {/* Step number bg watermark */}
+                <span className="absolute top-4 right-5 text-4xl font-black text-slate-100 select-none leading-none">
+                  {step.num}
+                </span>
 
-                  <h3 className="text-base font-extrabold text-slate-900 mt-4 tracking-tight">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-2 leading-relaxed font-normal">
-                    {item.desc}
-                  </p>
+                {/* Icon */}
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.accent} flex items-center justify-center shadow-lg ${step.glow} group-hover:scale-105 transition-transform`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
 
-                <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#0d9488]">
-                  <span>{item.badge}</span>
-                  <ArrowRight className="w-3.5 h-3.5 opacity-60" />
-                </div>
+                <h3 className="text-sm font-extrabold text-slate-900 mt-5 tracking-tight">{step.title}</h3>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed">{step.desc}</p>
+
+                {/* Bottom accent */}
+                <div className={`mt-5 h-0.5 rounded-full bg-gradient-to-r ${step.accent} opacity-30 group-hover:opacity-70 transition-opacity`} />
               </div>
             );
           })}
         </div>
+
       </div>
     </section>
   );

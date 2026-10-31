@@ -240,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
                   {roleBadge.label}
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-medium truncate max-w-[180px]">
+              <p className="text-[10px] text-slate-400 font-medium truncate max-w-45">
                 {currentUser?.email || 'user@pulserelay.org'}
               </p>
             </div>

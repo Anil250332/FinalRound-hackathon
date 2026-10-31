@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -6,89 +6,77 @@ import {
   ShieldCheck,
   Clock,
   Zap,
-  Building2,
   CheckCircle2,
   Droplet,
-  Radio,
-  Sparkles,
-  MapPin,
 } from 'lucide-react';
 import CrystalizedBall from './CrystalizedBall';
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
-  const [simulatedAccepted, setSimulatedAccepted] = useState(true);
 
   return (
-    <section className="relative pt-4 pb-20 overflow-hidden">
+    <section className="relative pt-4 pb-16 sm:pb-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Hero Organic Card Container */}
-        <div className="relative rounded-[2.5rem] bg-gradient-to-br from-[#094e43] via-[#0d6659] to-[#043d35] text-white p-8 sm:p-12 lg:p-16 shadow-2xl shadow-teal-950/25 overflow-hidden">
-          {/* Subtle Ambient Radial Glows */}
-          <div className="absolute top-0 right-0 -mr-24 -mt-24 w-[32rem] h-[32rem] rounded-full bg-teal-400/15 blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-1/4 -mb-20 w-80 h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left Column: Headline, Narrative & CTAs (7 cols) */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Category Pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-emerald-200 text-xs font-bold tracking-wide">
-                <Radio className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-                <span>Inter-Hospital Emergency Blood Network</span>
-              </div>
+        {/* Main Hero Card */}
+        <div className="relative rounded-[2rem] sm:rounded-[2.5rem] bg-linear-to-br from-[#094e43] via-[#0d6659] to-[#043d35] text-white p-7 sm:p-10 lg:p-16 shadow-2xl shadow-teal-950/25 overflow-hidden">
+          {/* Ambient glows */}
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-72 sm:w-128 h-72 sm:h-128 rounded-full bg-teal-400/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 -mb-16 w-56 sm:w-80 h-56 sm:h-80 rounded-full bg-emerald-400/15 blur-3xl pointer-events-none" />
 
-              {/* High-Impact Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-white">
-                Emergency Blood Aid. <br />
-                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-white bg-clip-text text-transparent">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+
+            {/* Left — Text + CTAs */}
+            <div className="lg:col-span-7 space-y-5">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-white">
+                Emergency Blood Aid.{' '}
+                <span className="bg-linear-to-r from-emerald-300 via-teal-200 to-white bg-clip-text text-transparent">
                   Hospitals Helping Hospitals.
                 </span>
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed font-normal max-w-xl">
-                When a hospital faces an acute blood shortage for critical surgery or trauma, PulseRelay replaces endless manual phone calls with a real-time hospital network. Broadcast urgent blood needs, let peer hospitals instantly accept, and coordinate direct life-saving patient support.
+              <p className="text-sm text-emerald-100/85 leading-relaxed max-w-xl">
+                When a hospital faces an acute blood shortage for critical surgery or trauma, PulseRelay connects regional medical centers into a live emergency lifeline. Broadcast urgent blood needs, let peer hospitals instantly accept, and coordinate direct life-saving patient support.
               </p>
 
               {/* CTAs */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+              <div className="flex flex-col sm:flex-row gap-3 pt-1">
                 <button
                   onClick={() => navigate('/login')}
-                  className="px-7 py-4 rounded-2xl bg-white text-[#0d6659] hover:bg-emerald-50 font-black text-xs shadow-xl shadow-teal-950/20 flex items-center justify-center space-x-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  className="px-6 py-3.5 rounded-2xl bg-white text-[#0d6659] hover:bg-emerald-50 font-black text-xs shadow-xl shadow-teal-950/20 flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                 >
                   <span>Enter Hospital Portals</span>
-                  <ArrowRight className="w-4 h-4 text-[#0d6659]" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-
                 <a
                   href="#simulator"
-                  className="px-6 py-4 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-xs backdrop-blur-md flex items-center justify-center space-x-2 transition-all cursor-pointer"
+                  className="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-white border border-white/20 font-bold text-xs backdrop-blur-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
                   <Zap className="w-4 h-4 text-emerald-300" />
                   <span>Test Emergency Simulator</span>
                 </a>
               </div>
 
-              {/* Trust Badges */}
-              <div className="pt-4 flex flex-wrap items-center gap-5 text-xs text-emerald-100/80">
+              {/* Trust badges */}
+              <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-100/75 pt-1">
                 <span className="flex items-center gap-1.5 font-semibold">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  Hospital Mutual Assistance
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Atomic Unit Locks
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  Verified Participating Facilities
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  State License Verified
                 </span>
                 <span className="flex items-center gap-1.5 font-semibold">
-                  <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
-                  Direct Peer Coordination
+                  <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  Real-Time Sockets
                 </span>
               </div>
             </div>
 
-            {/* Right Column: Interactive 3D Crystalized Ball from React Bits (5 cols) */}
-            <div className="lg:col-span-5 flex items-center justify-center relative">
-              <div className="w-full h-[450px] sm:h-[500px] lg:h-[540px] relative flex items-center justify-center">
+            {/* Right — CrystalizedBall: hidden on mobile, visible lg+ */}
+            <div className="hidden lg:flex lg:col-span-5 items-center justify-center">
+              <div className="w-full h-[500px] xl:h-[560px]">
                 <CrystalizedBall
                   preset="aurora"
                   color="#5CFFC8"
@@ -105,68 +93,66 @@ export const HeroSection: React.FC = () => {
                 />
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* 3 Floating Achievement Cards Overlapping Hero (Kurnia Majid Style) */}
-        <div className="relative -mt-10 sm:-mt-12 z-20 grid grid-cols-1 md:grid-cols-3 gap-5 px-4 sm:px-6">
-          {/* Card 1 */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0d9488] flex items-center justify-center font-bold">
-                <Clock className="w-6 h-6 text-[#0d9488]" />
+        {/* 3 Stat Cards — proper spacing below hero, no negative overlap on mobile */}
+        <div className="mt-5 sm:mt-0 sm:-mt-10 z-20 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:px-4">
+          {[
+            {
+              icon: Clock,
+              iconBg: 'bg-emerald-50',
+              iconColor: 'text-[#0d9488]',
+              badge: 'Speed',
+              badgeStyle: 'text-emerald-800 bg-emerald-100',
+              stat: '< 4.2 Mins',
+              title: 'Average Network Response',
+              desc: 'Nearby blood banks respond with confirmed unit allocations within minutes of broadcast.',
+            },
+            {
+              icon: ShieldCheck,
+              iconBg: 'bg-teal-50',
+              iconColor: 'text-teal-600',
+              badge: 'Security',
+              badgeStyle: 'text-teal-800 bg-teal-100',
+              stat: '100% Verified',
+              title: 'Certified Participating Facilities',
+              desc: 'State blood licenses and accredited testing standards vetted by the Super Admin authority.',
+            },
+            {
+              icon: Droplet,
+              iconBg: 'bg-rose-50',
+              iconColor: 'text-rose-600',
+              badge: 'Live Inventory',
+              badgeStyle: 'text-rose-800 bg-rose-100',
+              stat: '8 Rare Groups',
+              title: 'Multi-Component Grid',
+              desc: 'PRBC, Platelets, Whole Blood, FFP, and Cryo tracked across interconnected regional centres.',
+            },
+          ].map((card) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.badge}
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="flex items-center justify-between">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl ${card.iconBg} flex items-center justify-center`}>
+                    <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${card.iconColor}`} />
+                  </div>
+                  <span className={`text-[10px] font-black tracking-wider uppercase ${card.badgeStyle} px-2.5 py-0.5 rounded-full`}>
+                    {card.badge}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-4 tracking-tight">{card.stat}</h3>
+                <p className="text-xs font-bold text-slate-700 mt-1">{card.title}</p>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{card.desc}</p>
               </div>
-              <span className="text-[10px] font-black tracking-wider uppercase text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
-                Speed
-              </span>
-            </div>
-            <h3 className="text-2xl font-black text-slate-900 mt-4 tracking-tight">
-              &lt; 4.2 Mins
-            </h3>
-            <p className="text-xs font-bold text-slate-700 mt-1">Average Network Response</p>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Nearby blood banks respond with confirmed unit allocations within minutes of broadcast.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#0d9488] flex items-center justify-center font-bold">
-                <ShieldCheck className="w-6 h-6 text-teal-600" />
-              </div>
-              <span className="text-[10px] font-black tracking-wider uppercase text-teal-800 bg-teal-100 px-2.5 py-0.5 rounded-full">
-                Security
-              </span>
-            </div>
-            <h3 className="text-2xl font-black text-slate-900 mt-4 tracking-tight">
-              100% Verified
-            </h3>
-            <p className="text-xs font-bold text-slate-700 mt-1">Certified Participating Facilities</p>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              State blood licenses and accredited testing standards vetted by the Super Admin authority.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                <Droplet className="w-6 h-6 text-rose-600" />
-              </div>
-              <span className="text-[10px] font-black tracking-wider uppercase text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-full">
-                Live Inventory
-              </span>
-            </div>
-            <h3 className="text-2xl font-black text-slate-900 mt-4 tracking-tight">
-              8 Rare Groups
-            </h3>
-            <p className="text-xs font-bold text-slate-700 mt-1">Multi-Component Grid</p>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              PRBC, Platelets, Whole Blood, FFP, and Cryo tracked across interconnected regional centres.
-            </p>
-          </div>
+            );
+          })}
         </div>
+
       </div>
     </section>
   );

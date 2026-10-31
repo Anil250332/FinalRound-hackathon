@@ -10,11 +10,11 @@ export const LandingFooter: React.FC = () => {
           {/* Brand Info (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0d6659] to-[#14b8a6] flex items-center justify-center text-white">
+              <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-[#0d6659] to-[#14b8a6] flex items-center justify-center text-white">
                 <Activity className="w-5 h-5 text-white animate-pulse" />
               </div>
               <span className="text-xl font-black tracking-tight text-slate-900">
-                Pulse<span className="text-[#0d9488]">Relay</span>
+                Pulse<span className="">Relay</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm font-normal">

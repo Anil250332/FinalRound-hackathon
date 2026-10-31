@@ -52,7 +52,7 @@ const ToastMessageItem: React.FC<{ toast: ToastItem }> = ({ toast }) => {
       <div className="flex-1 min-w-0">
         <h4 className="text-xs font-extrabold text-slate-900 leading-snug">{toast.title}</h4>
         {toast.message && (
-          <p className="text-[11px] text-slate-600 mt-1 leading-relaxed break-words font-medium">
+          <p className="text-[11px] text-slate-600 mt-1 leading-relaxed wrap-break-word font-medium">
             {toast.message}
           </p>
         )}
