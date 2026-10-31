@@ -131,11 +131,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
                 <button
                   key={item.role}
                   onClick={() => handleRoleSelect(item)}
-                  className={`w-full flex items-center space-x-2.5 px-4 py-2.5 text-xs text-left transition-colors ${
-                    activeRole === item.role
+                  className={`w-full flex items-center space-x-2.5 px-4 py-2.5 text-xs text-left transition-colors ${activeRole === item.role
                       ? 'bg-emerald-50 text-emerald-800 font-bold'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   <item.icon className="w-4 h-4 text-emerald-600" />
                   <span>{item.label}</span>
@@ -210,11 +209,11 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
             <div className="w-10 h-10 rounded-full bg-[#0d9488] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-emerald-500/20">
               {currentUser?.name
                 ? currentUser.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .slice(0, 2)
-                    .toUpperCase()
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase()
                 : 'AU'}
             </div>
           </button>

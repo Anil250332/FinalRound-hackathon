@@ -43,24 +43,7 @@ export const LoginPage: React.FC = () => {
       badge: 'Hospital Admin',
       route: '/hospital-admin/overview',
     },
-    {
-      role: 'BLOOD_BANK_OFFICER' as UserRole,
-      title: 'Blood Bank Officer',
-      user: DEMO_USERS.bloodBankOfficer,
-      desc: 'Blood inventory management, incoming requests, offers & unit reservations',
-      icon: Droplet,
-      badge: 'Blood Officer',
-      route: '/blood-bank/overview',
-    },
-    {
-      role: 'EMERGENCY_COORDINATOR' as UserRole,
-      title: 'Emergency Coordinator',
-      user: DEMO_USERS.emergencyCoordinator,
-      desc: 'City Care Hospital: Emergency broadcasts, offers & transfer tracking',
-      icon: Activity,
-      badge: 'Coordinator',
-      route: '/coordinator/overview',
-    },
+
   ];
 
   const handleDemoLogin = async (account: (typeof demoAccounts)[0]) => {
@@ -87,10 +70,10 @@ export const LoginPage: React.FC = () => {
           user.role === 'SUPER_ADMIN'
             ? '/super-admin/overview'
             : user.role === 'HOSPITAL_ADMIN'
-            ? '/hospital-admin/overview'
-            : user.role === 'BLOOD_BANK_OFFICER'
-            ? '/blood-bank/overview'
-            : '/coordinator/overview';
+              ? '/hospital-admin/overview'
+              : user.role === 'BLOOD_BANK_OFFICER'
+                ? '/blood-bank/overview'
+                : '/coordinator/overview';
         setIsLoading(false);
         navigate(targetRoute);
         return;

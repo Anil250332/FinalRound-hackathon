@@ -116,8 +116,15 @@ export interface EmergencyRequest {
   requestId: string;
   requestingHospitalId: string;
   requestingHospitalName: string;
+  hospitalName?: string;
   requestingHospitalCity: string;
   patientReferenceId?: string;
+  patientName?: string;
+  patientAge?: number;
+  patientGender?: string;
+  patientDiagnosis?: string;
+  requestingDoctor?: string;
+  department?: string;
   bloodGroup: BloodGroup;
   component: BloodComponent;
   requiredUnits: number;
@@ -127,6 +134,9 @@ export interface EmergencyRequest {
   clinicalNotes?: string;
   status: RequestStatus;
   offers: Offer[];
+  acceptedByHospitalId?: string;
+  acceptedByHospitalName?: string;
+  acceptedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

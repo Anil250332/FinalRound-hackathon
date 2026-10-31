@@ -192,11 +192,10 @@ export const CreateEmergencyRequestPage: React.FC = () => {
                   type="button"
                   key={bg}
                   onClick={() => setBloodGroup(bg)}
-                  className={`py-3 px-2 rounded-2xl text-xs font-black transition-all ${
-                    bloodGroup === bg
+                  className={`py-3 px-2 rounded-2xl text-xs font-black transition-all ${bloodGroup === bg
                       ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20 scale-105'
                       : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
-                  }`}
+                    }`}
                 >
                   {bg}
                 </button>
