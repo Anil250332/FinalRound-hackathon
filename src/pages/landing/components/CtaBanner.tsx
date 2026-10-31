@@ -16,13 +16,13 @@ export const CtaBanner: React.FC = () => {
           <div className="relative z-10 max-w-xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-emerald-200 text-xs font-semibold mb-4">
               <Activity className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-              <span>National Healthcare Innovation</span>
+              <span>Inter-Hospital Healthcare Innovation</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
-              Ready to Connect Your Facility to the Lifeline Grid?
+              Ready to Connect Your Hospital to the Emergency Grid?
             </h2>
             <p className="mt-3 text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal">
-              Join leading hospital networks across Delhi NCR. Experience sub-4 minute emergency matching, automated atomic unit reservations, and complete cold-chain audit governance.
+              Empower your clinical team to broadcast urgent patient needs, assist peer hospitals during acute blood shortages, and coordinate direct life-saving handovers in seconds.
             </p>
           </div>
 
@@ -31,7 +31,7 @@ export const CtaBanner: React.FC = () => {
               onClick={() => navigate('/login')}
               className="px-7 py-4 rounded-2xl bg-white text-[#0d6659] hover:bg-emerald-50 font-black text-xs shadow-xl shadow-teal-950/20 flex items-center justify-center space-x-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
-              <span>Launch Dashboard Demo</span>
+              <span>Enter Hospital Portals</span>
               <ArrowRight className="w-4 h-4 text-[#0d6659]" />
             </button>
           </div>

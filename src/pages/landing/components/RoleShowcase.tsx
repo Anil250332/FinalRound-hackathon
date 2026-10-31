@@ -8,14 +8,14 @@ export const RoleShowcase: React.FC = () => {
 
   const roleDetails = {
     SUPER_ADMIN: {
-      roleTitle: 'Super Admin Portal',
-      subtitle: 'National Grid Governance & Regional Facility Approvals',
-      desc: 'Supervise the entire interconnected hospital grid, audit all inter-hospital transactions, verify facility clinical licenses, and ensure zero unverified actors enter the emergency blood lifeline.',
+      roleTitle: 'Super Admin Central Portal',
+      subtitle: 'Hospital Directory, Clinical Licenses & Grid Governance',
+      desc: 'Register and approve participating hospitals, inspect hospital blood inventories across regions, monitor live emergency broadcasts, and ensure complete network integrity.',
       highlights: [
-        'National facility compliance and state license verification',
-        'Real-time emergency monitoring radar across all connected cities',
-        'Cryptographic audit trails and regulatory incident logs',
-        'Account privilege management and fraud prevention',
+        'Hospital registration with dedicated login credentials',
+        'State blood license verification and compliance checks',
+        'Hospital-by-hospital inventory inspector for rare blood groups',
+        'Real-time emergency request tracking and inter-hospital connection logs',
       ],
       previewStats: [
         { label: 'Verified Hospitals', value: '25 Facilities' },
@@ -25,31 +25,31 @@ export const RoleShowcase: React.FC = () => {
       route: '/login',
     },
     HOSPITAL_ADMIN: {
-      roleTitle: 'Hospital Administrator Desk',
-      subtitle: 'Facility Staff Governance & Monthly Operational Metrics',
-      desc: 'Empower hospital directors and administrative heads to manage institutional blood bank officers, update facility contact hotlines and licenses, and monitor monthly emergency fulfillment rates.',
+      roleTitle: 'Hospital Operational Dashboard',
+      subtitle: 'Emergency Coordination, Doctor Management & Stock Ledger',
+      desc: 'Log in with hospital credentials, enroll and manage doctors and blood bank officers, raise emergency blood broadcasts for your patients, and respond to incoming requests from peer hospitals.',
       highlights: [
-        'Clinical staff account provisioning and role privilege delegation',
-        'Hospital profile maintenance, 24x7 blood bank status, and bed counts',
-        'Monthly inter-hospital supply and receipt analytics with CSV export',
-        'Emergency response turnaround oversight and KPI tracking',
+        'Doctor and clinical officer management with instant login access',
+        'Broadcast urgent patient blood requirements to network hospitals',
+        'Dedicated Incoming Requests and Raised by Us tracking pages',
+        'Instant peer hospital phone & coordinator contact reveal upon acceptance',
       ],
       previewStats: [
         { label: 'Affiliated Staff', value: '14 Accounts' },
         { label: 'Monthly Fulfillment', value: '98.4% Success' },
-        { label: 'Avg Dispatch', value: '24 Mins' },
+        { label: 'Peer Assistance', value: 'Active' },
       ],
       route: '/login',
     },
     BLOOD_BANK_OFFICER: {
-      roleTitle: 'Blood Bank Operations Desk',
-      subtitle: 'Real-Time Inventory Ledger, Incoming Broadcasts & Reservations',
-      desc: 'Designed specifically for chief blood bank officers. View incoming urgent broadcasts from nearby hospitals, commit available PRBC, Platelets or FFP units, and lock inventory securely.',
+      roleTitle: 'Doctor / Blood Bank Officer Portal',
+      subtitle: 'Blood Inventory Ledger & Emergency Broadcast Response',
+      desc: 'Direct clinical workstation for hospital doctors and blood bank officers. Manage blood units in the ledger, receive incoming emergency calls from peer hospitals, and accept requests with a single click.',
       highlights: [
-        'Comprehensive 8-blood group stock ledger with component-level shelf-life tracking',
-        'Real-time incoming emergency requirements filterable by proximity and urgency',
-        'One-click unit offer submissions with estimated transit time calculations',
-        'Atomic reservation locks with instant release if request is cancelled',
+        '8-group blood stock ledger (PRBC, Platelets, FFP, Whole Blood)',
+        'Receive live emergency broadcasts from nearby hospitals',
+        'One-click request acceptance with direct phone coordination',
+        'Broadcast emergency patient requirements on behalf of the hospital',
       ],
       previewStats: [
         { label: 'Available Stock', value: '142 Bags' },

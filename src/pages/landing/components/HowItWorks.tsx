@@ -1,35 +1,35 @@
 import React from 'react';
-import { Radio, Search, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Radio, Search, CheckCircle2, PhoneCall, ArrowRight } from 'lucide-react';
 
 export const HowItWorks: React.FC = () => {
   const steps = [
     {
       step: '01',
-      title: 'Broadcast Requirement',
-      desc: 'Authorized clinical staff select blood group, required units, and urgency level (Critical, Urgent, Normal). A structured digital beacon broadcasts across the hospital network.',
+      title: 'Broadcast Emergency Need',
+      desc: 'When an ICU or surgery patient urgently requires blood, hospital staff select blood group, units, and urgency. A live emergency broadcast alert is instantly transmitted.',
       icon: Radio,
-      badge: 'Step 1',
+      badge: 'Step 1: Broadcast',
     },
     {
       step: '02',
-      title: 'Instant Network Discovery',
-      desc: 'Participating blood centres within the regional grid receive high-priority alerts with matching stock availability, estimated travel distance, and transit times.',
+      title: 'Peer Hospital Discovery',
+      desc: 'All verified participating hospitals and blood bank officers in the network receive high-priority alerts with matching real-time inventory visibility.',
       icon: Search,
-      badge: 'Step 2',
+      badge: 'Step 2: Alert',
     },
     {
       step: '03',
-      title: 'Offer Submission & Lock',
-      desc: 'Available blood banks submit unit commitments. The requesting facility reviews and accepts allocation, instantly locking the units to prevent double-reservation.',
+      title: 'Hospital Accepts Request',
+      desc: 'A peer medical centre with available stock steps forward and accepts the emergency request, committing the blood units to save the patient.',
       icon: CheckCircle2,
-      badge: 'Step 3',
+      badge: 'Step 3: Accept',
     },
     {
       step: '04',
-      title: 'Verified Transit & Audit',
-      desc: 'Dispatched blood units are tracked under strict cold-chain parameters. The entire transaction is permanently recorded in immutable audit logs for regulatory compliance.',
-      icon: ShieldCheck,
-      badge: 'Step 4',
+      title: 'Direct Peer Coordination',
+      desc: 'Both hospitals instantly unlock direct contact phone numbers, officer details, and address for rapid, direct peer-to-peer handover and clinical coordination.',
+      icon: PhoneCall,
+      badge: 'Step 4: Mutual Aid',
     },
   ];
 
@@ -38,13 +38,13 @@ export const HowItWorks: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-[11px] font-black uppercase tracking-wider text-[#0d9488] bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
-            Emergency Workflow
+            Hospital Mutual Aid Workflow
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-3 tracking-tight">
-            How PulseRelay Works
+            How Hospitals Help Hospitals on PulseRelay
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium">
-            From critical trauma alarm to verified unit reservation in four seamless stages.
+            From critical trauma alarm to direct inter-hospital coordination in four seamless stages.
           </p>
         </div>
 

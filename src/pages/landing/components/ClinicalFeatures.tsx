@@ -31,9 +31,9 @@ export const ClinicalFeatures: React.FC = () => {
       color: 'bg-amber-50 text-amber-700',
     },
     {
-      title: 'Cold-Chain Telemetry Guidance',
-      desc: 'Target temperature tolerances (PRBC 2°C–6°C, Platelets 20°C–24°C, FFP & Cryo ≤ -18°C) are displayed and tracked throughout allocation.',
-      icon: Thermometer,
+      title: 'Direct Peer Hospital Coordination',
+      desc: 'When an emergency request is accepted, direct hospital contact numbers, attending doctor details, and facility addresses are unlocked for instant peer-to-peer clinical handover.',
+      icon: Activity,
       color: 'bg-blue-50 text-blue-700',
     },
     {

@@ -216,10 +216,16 @@ export const InteractiveSimulator: React.FC = () => {
                             <span className="text-xs font-black text-slate-900 block">
                               Can Supply {offer.canSupply} Units
                             </span>
-                            <span className="text-[10px] text-emerald-700 font-semibold block flex items-center gap-1 justify-end">
-                              <Clock className="w-3 h-3" />
-                              {offer.transitMinutes} mins transit
-                            </span>
+                            {isAccepted ? (
+                              <span className="text-[10px] text-emerald-800 font-bold block flex items-center gap-1 justify-end">
+                                📞 +91 98260 11101 (Doctor Desk)
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-emerald-700 font-semibold block flex items-center gap-1 justify-end">
+                                <Clock className="w-3 h-3" />
+                                {offer.transitMinutes} mins away
+                              </span>
+                            )}
                           </div>
 
                           <button
@@ -231,7 +237,7 @@ export const InteractiveSimulator: React.FC = () => {
                                 : 'bg-white hover:bg-[#0d9488] hover:text-white text-slate-800 border border-slate-200 shadow-2xs'
                             }`}
                           >
-                            {isAccepted ? '✓ Reserved' : 'Accept & Lock'}
+                            {isAccepted ? '✓ Mutual Aid Connected' : 'Accept & Help'}
                           </button>
                         </div>
                       </div>
