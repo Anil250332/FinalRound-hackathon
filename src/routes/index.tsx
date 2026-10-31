@@ -3,6 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks/redux';
 import { AppLayout } from '../layouts/AppLayout';
 
+// Public Landing Page
+import { LandingPage } from '../pages/landing/LandingPage';
+
 // Auth Pages
 import { LoginPage } from '../pages/auth/LoginPage';
 import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
@@ -34,7 +37,7 @@ import { RequestDetailsPage } from '../pages/emergency/RequestDetailsPage';
 import { TransferTrackingPage } from '../pages/emergency/TransferTrackingPage';
 
 export const AppRoutes: React.FC = () => {
-  const { activeRole, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { activeRole } = useAppSelector((state) => state.auth);
 
   const getDefaultRouteForRole = () => {
     switch (activeRole) {
@@ -53,6 +56,9 @@ export const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
+      {/* Public Landing Page at Root */}
+      <Route path="/" element={<LandingPage />} />
+
       {/* Public Auth Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -87,11 +93,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/coordinator/transfers" element={<TransferTrackingPage />} />
       </Route>
 
-      {/* Root redirect to current role */}
-      <Route path="/" element={<Navigate to={getDefaultRouteForRole()} replace />} />
-
-      {/* Catch-all fallback */}
-      <Route path="*" element={<Navigate to={getDefaultRouteForRole()} replace />} />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
