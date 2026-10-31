@@ -27,23 +27,31 @@ export const LoginPage: React.FC = () => {
   const demoAccounts = [
     {
       role: 'SUPER_ADMIN' as UserRole,
-      title: 'Super Admin',
+      title: 'Admin Login',
       user: DEMO_USERS.superAdmin,
-      desc: 'National network authority, hospital approvals & compliance audit logs',
+      desc: 'National blood grid overview, hospital approvals & inter-hospital inventory visibility',
       icon: ShieldCheck,
       badge: 'Super Admin',
       route: '/super-admin/overview',
     },
     {
       role: 'HOSPITAL_ADMIN' as UserRole,
-      title: 'Hospital Admin',
+      title: 'Hospital Login',
       user: DEMO_USERS.hospitalAdmin,
-      desc: 'AIIMS Central Hospital management, profile, staff & activity reports',
+      desc: 'Hospital Head: Officer management, hospital inventory, & emergency coordination',
       icon: Hospital,
-      badge: 'Hospital Admin',
+      badge: 'Hospital Head',
       route: '/hospital-admin/overview',
     },
-
+    {
+      role: 'BLOOD_BANK_OFFICER' as UserRole,
+      title: 'Blood Bank Officer',
+      user: DEMO_USERS.bloodBankOfficer,
+      desc: 'Hospital Officer: Manage blood inventory, accept network requests & broadcast emergency requests',
+      icon: Droplet,
+      badge: 'Blood Officer',
+      route: '/blood-bank/overview',
+    },
   ];
 
   const handleDemoLogin = async (account: (typeof demoAccounts)[0]) => {

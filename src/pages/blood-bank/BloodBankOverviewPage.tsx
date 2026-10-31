@@ -115,10 +115,10 @@ export const BloodBankOverviewPage: React.FC = () => {
               <p className="text-xs text-slate-400 mt-0.5">Hospitals actively seeking blood units</p>
             </div>
             <button
-              onClick={() => navigate('/blood-bank/incoming-requests')}
-              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1"
+              onClick={() => navigate('/blood-bank/network-requests')}
+              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1 cursor-pointer"
             >
-              <span>Review & Make Offer</span>
+              <span>View & Accept</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -156,10 +156,10 @@ export const BloodBankOverviewPage: React.FC = () => {
                     {req.requestingHospitalName} ({req.requestingHospitalCity})
                   </span>
                   <button
-                    onClick={() => navigate('/blood-bank/incoming-requests')}
-                    className="px-3.5 py-1.5 bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    onClick={() => navigate('/blood-bank/network-requests')}
+                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                   >
-                    Send Offer →
+                    Accept & Connect →
                   </button>
                 </div>
               </div>

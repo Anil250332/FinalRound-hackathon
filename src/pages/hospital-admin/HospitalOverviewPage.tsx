@@ -1,36 +1,57 @@
-import React from 'react';
-import { useAppSelector } from '../../hooks/redux';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/Badge';
+import { fetchEmergencyRequests } from '../../store/slices/emergencySlice';
+import { apiService } from '../../services/apiService';
+import { BloodInventoryItem } from '../../types';
 import {
   Building2,
   Users,
   Droplet,
-  Truck,
+  Radio,
   ArrowUpRight,
   ShieldCheck,
   MapPin,
+  CheckCircle2,
+  Clock,
+  HeartHandshake,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const HospitalOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { items } = useAppSelector((state) => state.inventory);
-  const { transfers } = useAppSelector((state) => state.transfer);
   const { hospitals } = useAppSelector((state) => state.hospitals);
+  const { requests } = useAppSelector((state) => state.emergency);
 
-  const hospitalId = currentUser?.hospitalId || 'hosp-1';
+  const hospitalId = currentUser?.hospitalId || '6ae5bfa3a41657de36e25a1d';
   const currentHosp = hospitals.find((h) => h.id === hospitalId);
   const hospitalName = currentHosp?.name || currentUser?.hospitalName || 'City Care Hospital';
 
-  const hospitalInventory = items.filter((i) => i.hospitalId === hospitalId);
-  const totalAvailableUnits = hospitalInventory.reduce((acc, curr) => acc + curr.availableUnits, 0);
-  const totalReservedUnits = hospitalInventory.reduce((acc, curr) => acc + curr.reservedUnits, 0);
+  const [inventory, setInventory] = useState<BloodInventoryItem[]>([]);
+  const [officerCount, setOfficerCount] = useState<number>(4);
 
-  const activeHospitalTransfers = transfers.filter(
-    (t) => (t.supplyingHospitalId === hospitalId || t.receivingHospitalId === hospitalId) && t.status !== 'HANDOVER_COMPLETED'
-  ).length;
+  useEffect(() => {
+    dispatch(fetchEmergencyRequests());
+    apiService.getHospitalInventory(hospitalId).then(setInventory).catch(() => {});
+    apiService.getUsers(hospitalId).then((users) => setOfficerCount(users.length || 4)).catch(() => {});
+  }, [dispatch, hospitalId]);
+
+  const totalAvailableUnits = inventory.reduce((acc, curr) => acc + curr.availableUnits, 0);
+
+  const incomingRequests = requests.filter(
+    (r) => r.requestingHospitalId !== hospitalId && r.status === 'SEARCHING'
+  );
+
+  const acceptedRequests = requests.filter(
+    (r) => r.acceptedByHospitalId === hospitalId || (r.status === 'ACCEPTED' && r.acceptedByHospitalName?.includes(hospitalName))
+  );
+
+  const ourRequests = requests.filter(
+    (r) => r.requestingHospitalId === hospitalId || r.requestingHospitalName?.includes(hospitalName)
+  );
 
   return (
     <div className="space-y-8">
@@ -46,20 +67,20 @@ export const HospitalOverviewPage: React.FC = () => {
           <p className="text-sm text-slate-500 mt-1 font-medium flex items-center gap-2">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-slate-400" />
-              {currentHosp ? `${currentHosp.address}, ${currentHosp.city}` : 'Ansari Nagar, New Delhi'}
+              {currentHosp ? `${currentHosp.address}, ${currentHosp.city}` : 'Indore, Madhya Pradesh'}
             </span>
             <span>•</span>
-            <span>License: {currentHosp?.licenseNumber || 'DL-BB-2024-0019'}</span>
+            <span>License: {currentHosp?.licenseNumber || 'MP-IND-2024-0019'}</span>
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => navigate('/hospital-admin/staff')}
+            onClick={() => navigate('/hospital-admin/users')}
             className="px-5 py-2.5 bg-[#0d9488] hover:bg-[#0f766e] text-white rounded-2xl text-xs font-bold shadow-md shadow-teal-700/20 transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <Users className="w-4 h-4" />
-            <span>Manage Staff</span>
+            <span>Manage Officers</span>
           </button>
           <button
             onClick={() => navigate('/hospital-admin/profile')}
@@ -70,65 +91,65 @@ export const HospitalOverviewPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Minimal Stat Cards */}
+      {/* 4 Clean Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="In-House Blood Units"
           value={totalAvailableUnits}
-          subtitle={`${totalReservedUnits} units locked for outgoing emergencies`}
+          subtitle="Real-time stored blood units"
           icon={Droplet}
           color="teal"
         />
         <StatCard
-          title="Active Staff Accounts"
-          value="14"
-          subtitle="4 Officers, 10 Coordinators"
+          title="Hospital Officers"
+          value={officerCount}
+          subtitle="Assigned under this hospital"
           icon={Users}
           color="emerald"
         />
         <StatCard
-          title="Active Transfers"
-          value={activeHospitalTransfers}
-          subtitle="In-transit or cold-chain packing"
-          icon={Truck}
+          title="Incoming Emergencies"
+          value={incomingRequests.length}
+          subtitle="Hospitals awaiting blood support"
+          icon={Radio}
           color="rose"
         />
         <StatCard
-          title="Network Fulfillment"
-          value="98.4%"
-          subtitle="Average transfer time: 24 mins"
-          icon={ShieldCheck}
+          title="Emergencies Helped"
+          value={acceptedRequests.length}
+          subtitle="Requests accepted by this centre"
+          icon={HeartHandshake}
           color="blue"
         />
       </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Local Blood Stock Summary (6 cols) */}
+        {/* Left Column: Hospital Blood Stock Reserves */}
         <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between pb-5 border-b border-slate-100">
             <div>
               <h2 className="text-base font-extrabold text-slate-900">Hospital Blood Reserves</h2>
-              <p className="text-xs text-slate-400 mt-0.5">On-site component stock availability</p>
+              <p className="text-xs text-slate-400 mt-0.5">Current component stock availability</p>
             </div>
             <button
-              onClick={() => navigate('/blood-bank/inventory')}
-              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1"
+              onClick={() => navigate('/hospital-admin/inventory')}
+              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1 cursor-pointer"
             >
-              <span>View Inventory</span>
+              <span>Full Inventory</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-            {hospitalInventory.map((item) => (
+            {inventory.slice(0, 6).map((item) => (
               <div
                 key={item.id}
                 className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-black text-sm text-slate-900">{item.bloodGroup}</span>
-                  <span className="text-[10px] font-bold text-[#0d9488] bg-[#0d9488]/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold text-[#0d9488] bg-teal-50 px-2 py-0.5 rounded-full border border-teal-100">
                     {item.component}
                   </span>
                 </div>
@@ -136,66 +157,56 @@ export const HospitalOverviewPage: React.FC = () => {
                   <span className="text-xl font-black text-slate-900">{item.availableUnits}</span>
                   <span className="text-[10px] text-slate-400 font-semibold">Available</span>
                 </div>
-                {item.reservedUnits > 0 && (
-                  <p className="text-[10px] text-amber-600 font-semibold mt-1">
-                    🔒 {item.reservedUnits} reserved
-                  </p>
-                )}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Column: Recent Transfer Logistics (6 cols) */}
+        {/* Right Column: Inter-Hospital Emergency Help Activity */}
         <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
           <div className="flex items-center justify-between pb-5 border-b border-slate-100">
             <div>
-              <h2 className="text-base font-extrabold text-slate-900">Live Hospital Dispatches</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Outbound & incoming emergency blood logistics</p>
+              <h2 className="text-base font-extrabold text-slate-900">Emergency Network Activity</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Urgent broadcasts seeking help across hospitals</p>
             </div>
             <button
-              onClick={() => navigate('/coordinator/transfers')}
-              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1"
+              onClick={() => navigate('/hospital-admin/emergency-requests')}
+              className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1 cursor-pointer"
             >
-              <span>Transfer Center</span>
+              <span>View All</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="mt-5 space-y-3">
-            {transfers.map((trf) => (
+            {incomingRequests.slice(0, 3).map((req) => (
               <div
-                key={trf.id}
+                key={req.id}
                 className="p-4 rounded-2xl border border-slate-100 bg-slate-50/60 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <span className="w-8 h-8 rounded-xl bg-teal-50 text-teal-800 font-bold text-xs flex items-center justify-center">
-                      {trf.bloodGroup}
+                    <span className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 font-black text-xs flex items-center justify-center border border-rose-100">
+                      {req.bloodGroup}
                     </span>
                     <div>
                       <p className="font-bold text-xs text-slate-900">
-                        {trf.units} Units {trf.component}
+                        {req.requiredUnits} Units {req.component}
                       </p>
                       <p className="text-[11px] text-slate-400">
-                        {trf.supplyingHospitalName} → {trf.receivingHospitalName}
+                        Requested by {req.requestingHospitalName} ({req.requestingHospitalCity || 'Indore'})
                       </p>
                     </div>
                   </div>
-                  <StatusBadge status={trf.status} />
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5 text-slate-400" />
-                    {trf.courierName}
-                  </span>
-                  <span className="font-mono text-[#0d9488] font-bold">
-                    Temp: {trf.coldChainTempCelsius}°C
-                  </span>
+                  <StatusBadge status={req.urgency} />
                 </div>
               </div>
             ))}
+            {incomingRequests.length === 0 && (
+              <p className="text-xs text-slate-400 text-center py-8">
+                No open emergency alerts in your network right now.
+              </p>
+            )}
           </div>
         </div>
       </div>

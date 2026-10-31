@@ -38,27 +38,22 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
 
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path.includes('/blood-bank/inventory')) return 'Blood Inventory';
-    if (path.includes('/blood-bank/incoming-requests')) return 'Incoming Emergency Requests';
-    if (path.includes('/blood-bank/offers-reservations')) return 'Offers & Unit Reservations';
-    if (path.includes('/blood-bank/overview')) return 'Blood Bank Overview';
-
-    if (path.includes('/coordinator/create-request')) return 'Raise Emergency Blood Request';
-    if (path.includes('/coordinator/network')) return 'Emergency Network Directory';
-    if (path.includes('/coordinator/requests')) return 'Request Coordination & Offers';
-    if (path.includes('/coordinator/transfers')) return 'Transfer Logistics & OTP';
-    if (path.includes('/coordinator/overview')) return 'Emergency Coordinator Overview';
-
-    if (path.includes('/hospital-admin/staff')) return 'Hospital Staff Management';
-    if (path.includes('/hospital-admin/profile')) return 'Hospital Profile';
-    if (path.includes('/hospital-admin/reports')) return 'Hospital Reports & Activity';
-    if (path.includes('/hospital-admin/overview')) return 'Hospital Operational Summary';
-
+    if (path.includes('/super-admin/inventory')) return 'Hospital Inventory Inspector';
+    if (path.includes('/super-admin/emergency-requests')) return 'Emergency Requests & Connections';
     if (path.includes('/super-admin/hospitals')) return 'Hospital Directory & Verification';
-    if (path.includes('/super-admin/users')) return 'Staff & Access Management';
-    if (path.includes('/super-admin/emergency-monitoring')) return 'Network Emergency Monitoring';
-    if (path.includes('/super-admin/audit-logs')) return 'Compliance & Audit Logs';
-    if (path.includes('/super-admin/overview')) return 'National Overview';
+    if (path.includes('/super-admin/profile')) return 'Admin Profile Settings';
+    if (path.includes('/super-admin/overview')) return 'Admin Dashboard';
+
+    if (path.includes('/hospital-admin/users')) return 'Hospital Officer Management';
+    if (path.includes('/hospital-admin/inventory')) return 'Hospital Blood Stock Ledger';
+    if (path.includes('/hospital-admin/emergency-requests')) return 'Emergency Requests & Responses';
+    if (path.includes('/hospital-admin/profile')) return 'Hospital Profile';
+    if (path.includes('/hospital-admin/overview')) return 'Hospital Operational Overview';
+
+    if (path.includes('/blood-bank/inventory')) return 'Blood Bank Inventory';
+    if (path.includes('/blood-bank/network-requests')) return 'Network Emergency Alerts (Accept Request)';
+    if (path.includes('/blood-bank/my-requests')) return 'Create Request & Inter-Hospital Connections';
+    if (path.includes('/blood-bank/overview')) return 'Blood Bank Officer Dashboard';
 
     return 'Dashboard';
   };

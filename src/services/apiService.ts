@@ -82,8 +82,10 @@ export const adaptEmergencyRequest = (raw: any): EmergencyRequest => {
     requestId: raw.requestId || `PR-EMG-${raw._id?.slice(-4) || '1001'}`,
     requestingHospitalId: raw.requestingHospitalId?._id || raw.requestingHospitalId || '',
     requestingHospitalName: raw.requestingHospitalId?.name || raw.requestingHospitalName || 'Requesting Hospital',
-    requestingHospitalCity: raw.location?.city || raw.requestingHospitalCity || 'Indore',
+    requestingHospitalCity: raw.requestingHospitalId?.city || raw.location?.city || raw.requestingHospitalCity || 'Indore',
     patientReferenceId: raw.patientReferenceId || `PT-${raw.requestId || '001'}`,
+    patientName: raw.patientName,
+    patientDiagnosis: raw.patientDiagnosis,
     bloodGroup: raw.bloodGroup,
     component: raw.component,
     requiredUnits: raw.requiredUnits,
@@ -93,6 +95,13 @@ export const adaptEmergencyRequest = (raw: any): EmergencyRequest => {
     clinicalNotes: raw.additionalNotes || raw.clinicalNotes || '',
     status: raw.status || 'SEARCHING',
     offers: (raw.offers || []).map(adaptOffer),
+    acceptedByHospitalId: raw.acceptedByHospitalId?._id || raw.acceptedByHospitalId || undefined,
+    acceptedByHospitalName: raw.acceptedByHospitalId?.name || undefined,
+    acceptedByHospitalPhone: raw.acceptedByHospitalId?.contact?.phone || raw.acceptedByHospitalId?.phone || undefined,
+    acceptedByHospitalEmail: raw.acceptedByHospitalId?.contact?.email || raw.acceptedByHospitalId?.email || undefined,
+    acceptedByHospitalCity: raw.acceptedByHospitalId?.city || undefined,
+    acceptedByHospitalAddress: raw.acceptedByHospitalId?.address || undefined,
+    acceptedAt: raw.acceptedAt ? new Date(raw.acceptedAt).toLocaleString() : undefined,
     createdAt: raw.createdAt || new Date().toISOString(),
     updatedAt: raw.updatedAt || new Date().toISOString(),
   };
@@ -294,9 +303,30 @@ export const apiService = {
     return adaptEmergencyRequest(res.data.data.request);
   },
 
-  async getMatchingHospitals(requestId: string): Promise<any[]> {
-    const res = await apiClient.get(`/requests/${requestId}/matching`);
-    return res.data.data || [];
+  async acceptEmergencyRequest(requestId: string, hospitalId: string): Promise<EmergencyRequest> {
+    const res = await apiClient.patch(`/requests/${requestId}/accept`, { hospitalId });
+    return adaptEmergencyRequest(res.data.data);
+  },
+
+  // Users & Staff
+  async getUsers(hospitalId?: string): Promise<User[]> {
+    const url = hospitalId ? `/users/hospital/${hospitalId}` : '/users';
+    const res = await apiClient.get(url);
+    return (res.data.data || []).map(adaptUser);
+  },
+
+  async createUser(data: any): Promise<User> {
+    const res = await apiClient.post('/users', data);
+    return adaptUser(res.data.data);
+  },
+
+  async toggleUserStatus(userId: string, isActive: boolean): Promise<User> {
+    const res = await apiClient.patch(`/users/${userId}/status`, { isActive });
+    return adaptUser(res.data.data);
+  },
+
+  async deleteUser(userId: string): Promise<void> {
+    await apiClient.delete(`/users/${userId}`);
   },
 
   // Offers

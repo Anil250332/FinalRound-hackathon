@@ -39,35 +39,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
       case 'SUPER_ADMIN':
         return [
           { name: 'Dashboard', path: '/super-admin/overview', icon: LayoutDashboard },
-          { name: 'Hospitals', path: '/super-admin/hospitals', icon: Building2 },
-          { name: 'Staff & Roles', path: '/super-admin/users', icon: Users },
-          { name: 'Emergency Radar', path: '/super-admin/emergency-monitoring', icon: Radio },
-          { name: 'Audit & Reports', path: '/super-admin/audit-logs', icon: FileText },
+          { name: 'Hospital Management', path: '/super-admin/hospitals', icon: Building2 },
+          { name: 'Hospital Inventory', path: '/super-admin/inventory', icon: Droplet },
+          { name: 'Emergency Requests', path: '/super-admin/emergency-requests', icon: Radio },
+          { name: 'Profile Update', path: '/super-admin/profile', icon: UserCheck },
         ];
       case 'HOSPITAL_ADMIN':
         return [
           { name: 'Dashboard', path: '/hospital-admin/overview', icon: LayoutDashboard },
-          { name: 'Staff Management', path: '/hospital-admin/staff', icon: UserCheck },
+          { name: 'User Management', path: '/hospital-admin/users', icon: Users },
+          { name: 'Hospital Inventory', path: '/hospital-admin/inventory', icon: Droplet },
+          { name: 'Emergency Requests', path: '/hospital-admin/emergency-requests', icon: Radio },
           { name: 'Hospital Profile', path: '/hospital-admin/profile', icon: Building },
-          { name: 'Activity Reports', path: '/hospital-admin/reports', icon: BarChart3 },
         ];
       case 'BLOOD_BANK_OFFICER':
-        return [
-          { name: 'Dashboard', path: '/blood-bank/overview', icon: LayoutDashboard },
-          { name: 'Inventory', path: '/blood-bank/inventory', icon: Droplet },
-          { name: 'Incoming Requests', path: '/blood-bank/incoming-requests', icon: Inbox },
-          { name: 'Offers & Reserves', path: '/blood-bank/offers-reservations', icon: BookmarkCheck },
-        ];
-      case 'EMERGENCY_COORDINATOR':
-        return [
-          { name: 'Dashboard', path: '/coordinator/overview', icon: LayoutDashboard },
-          { name: 'Raise Emergency', path: '/coordinator/create-request', icon: PlusCircle },
-          { name: 'Hospital Network', path: '/coordinator/network', icon: Network },
-          { name: 'Active Requests', path: '/coordinator/requests', icon: HeartHandshake },
-          { name: 'Transfers & OTP', path: '/coordinator/transfers', icon: Truck },
-        ];
       default:
-        return [];
+        return [
+          { name: 'Officer Dashboard', path: '/blood-bank/overview', icon: LayoutDashboard },
+          { name: 'Blood Inventory', path: '/blood-bank/inventory', icon: Droplet },
+          { name: 'Network Emergency', path: '/blood-bank/network-requests', icon: Inbox },
+          { name: 'Create & My Requests', path: '/blood-bank/my-requests', icon: PlusCircle },
+        ];
     }
   };
 

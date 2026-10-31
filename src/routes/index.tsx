@@ -13,28 +13,22 @@ import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
 // Super Admin Pages
 import { SuperAdminOverviewPage } from '../pages/super-admin/SuperAdminOverviewPage';
 import { HospitalManagementPage } from '../pages/super-admin/HospitalManagementPage';
-import { UserManagementPage } from '../pages/super-admin/UserManagementPage';
-import { EmergencyMonitoringPage } from '../pages/super-admin/EmergencyMonitoringPage';
-import { AuditLogsPage } from '../pages/super-admin/AuditLogsPage';
+import { AdminHospitalInventoryPage } from '../pages/super-admin/AdminHospitalInventoryPage';
+import { AdminEmergencyRequestsPage } from '../pages/super-admin/AdminEmergencyRequestsPage';
+import { AdminProfilePage } from '../pages/super-admin/AdminProfilePage';
 
 // Hospital Admin Pages
 import { HospitalOverviewPage } from '../pages/hospital-admin/HospitalOverviewPage';
 import { StaffManagementPage } from '../pages/hospital-admin/StaffManagementPage';
+import { HospitalInventoryPage } from '../pages/hospital-admin/HospitalInventoryPage';
+import { HospitalEmergencyPage } from '../pages/hospital-admin/HospitalEmergencyPage';
 import { HospitalProfilePage } from '../pages/hospital-admin/HospitalProfilePage';
-import { HospitalReportsPage } from '../pages/hospital-admin/HospitalReportsPage';
 
 // Blood Bank Officer Pages
 import { BloodBankOverviewPage } from '../pages/blood-bank/BloodBankOverviewPage';
 import { BloodInventoryPage } from '../pages/blood-bank/BloodInventoryPage';
 import { IncomingRequestsPage } from '../pages/blood-bank/IncomingRequestsPage';
-import { OffersReservationsPage } from '../pages/blood-bank/OffersReservationsPage';
-
-// Emergency Coordinator Pages
-import { CoordinatorOverviewPage } from '../pages/emergency/CoordinatorOverviewPage';
-import { CreateEmergencyRequestPage } from '../pages/emergency/CreateEmergencyRequestPage';
-import { EmergencyNetworkPage } from '../pages/emergency/EmergencyNetworkPage';
-import { RequestDetailsPage } from '../pages/emergency/RequestDetailsPage';
-import { TransferTrackingPage } from '../pages/emergency/TransferTrackingPage';
+import { OfficerMyRequestsPage } from '../pages/blood-bank/OfficerMyRequestsPage';
 
 export const AppRoutes: React.FC = () => {
   const { activeRole } = useAppSelector((state) => state.auth);
@@ -46,11 +40,8 @@ export const AppRoutes: React.FC = () => {
       case 'HOSPITAL_ADMIN':
         return '/hospital-admin/overview';
       case 'BLOOD_BANK_OFFICER':
-        return '/blood-bank/overview';
-      case 'EMERGENCY_COORDINATOR':
-        return '/coordinator/overview';
       default:
-        return '/super-admin/overview';
+        return '/blood-bank/overview';
     }
   };
 
@@ -65,32 +56,28 @@ export const AppRoutes: React.FC = () => {
 
       {/* Authenticated Dashboard Routes */}
       <Route element={<AppLayout />}>
-        {/* Super Admin Routes */}
+        {/* 1. Super Admin Dashboard Routes */}
         <Route path="/super-admin/overview" element={<SuperAdminOverviewPage />} />
         <Route path="/super-admin/hospitals" element={<HospitalManagementPage />} />
-        <Route path="/super-admin/users" element={<UserManagementPage />} />
-        <Route path="/super-admin/emergency-monitoring" element={<EmergencyMonitoringPage />} />
-        <Route path="/super-admin/audit-logs" element={<AuditLogsPage />} />
+        <Route path="/super-admin/inventory" element={<AdminHospitalInventoryPage />} />
+        <Route path="/super-admin/emergency-requests" element={<AdminEmergencyRequestsPage />} />
+        <Route path="/super-admin/profile" element={<AdminProfilePage />} />
 
-        {/* Hospital Admin Routes */}
+        {/* 2. Hospital Admin Dashboard Routes */}
         <Route path="/hospital-admin/overview" element={<HospitalOverviewPage />} />
+        <Route path="/hospital-admin/users" element={<StaffManagementPage />} />
         <Route path="/hospital-admin/staff" element={<StaffManagementPage />} />
+        <Route path="/hospital-admin/inventory" element={<HospitalInventoryPage />} />
+        <Route path="/hospital-admin/emergency-requests" element={<HospitalEmergencyPage />} />
         <Route path="/hospital-admin/profile" element={<HospitalProfilePage />} />
-        <Route path="/hospital-admin/reports" element={<HospitalReportsPage />} />
 
-        {/* Blood Bank Officer Routes */}
+        {/* 3. Blood Bank Officer Dashboard Routes */}
         <Route path="/blood-bank/overview" element={<BloodBankOverviewPage />} />
         <Route path="/blood-bank/inventory" element={<BloodInventoryPage />} />
+        <Route path="/blood-bank/network-requests" element={<IncomingRequestsPage />} />
         <Route path="/blood-bank/incoming-requests" element={<IncomingRequestsPage />} />
-        <Route path="/blood-bank/offers-reservations" element={<OffersReservationsPage />} />
-
-        {/* Emergency Coordinator Routes */}
-        <Route path="/coordinator/overview" element={<CoordinatorOverviewPage />} />
-        <Route path="/coordinator/create-request" element={<CreateEmergencyRequestPage />} />
-        <Route path="/coordinator/network" element={<EmergencyNetworkPage />} />
-        <Route path="/coordinator/requests" element={<RequestDetailsPage />} />
-        <Route path="/coordinator/requests/:id" element={<RequestDetailsPage />} />
-        <Route path="/coordinator/transfers" element={<TransferTrackingPage />} />
+        <Route path="/blood-bank/my-requests" element={<OfficerMyRequestsPage />} />
+        <Route path="/blood-bank/create-request" element={<OfficerMyRequestsPage />} />
       </Route>
 
       {/* Fallback */}

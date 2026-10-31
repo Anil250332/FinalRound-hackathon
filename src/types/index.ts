@@ -19,6 +19,7 @@ export type UrgencyLevel = 'CRITICAL' | 'URGENT' | 'NORMAL';
 
 export type RequestStatus =
   | 'SEARCHING'
+  | 'ACCEPTED'
   | 'OFFERS_RECEIVED'
   | 'PARTIALLY_ALLOCATED'
   | 'FULLY_ALLOCATED'
@@ -136,6 +137,10 @@ export interface EmergencyRequest {
   offers: Offer[];
   acceptedByHospitalId?: string;
   acceptedByHospitalName?: string;
+  acceptedByHospitalPhone?: string;
+  acceptedByHospitalEmail?: string;
+  acceptedByHospitalCity?: string;
+  acceptedByHospitalAddress?: string;
   acceptedAt?: string;
   createdAt: string;
   updatedAt: string;

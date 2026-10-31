@@ -31,10 +31,8 @@ export const SuperAdminOverviewPage: React.FC = () => {
   const totalHospitals = hospitals.length;
   const verifiedHospitals = hospitals.filter((h) => h.verified).length;
   const pendingApprovals = hospitals.filter((h) => h.status === 'PENDING_VERIFICATION').length;
-  const activeEmergencies = requests.filter(
-    (r) => r.status === 'SEARCHING' || r.status === 'OFFERS_RECEIVED' || r.status === 'PARTIALLY_ALLOCATED'
-  ).length;
-  const completedTransfers = transfers.filter((t) => t.status === 'HANDOVER_COMPLETED').length;
+  const activeEmergencies = requests.filter((r) => r.status === 'SEARCHING').length;
+  const connectedRequests = requests.filter((r) => r.status === 'ACCEPTED').length;
   const totalUnitsInGrid = items.reduce((acc, curr) => acc + curr.availableUnits, 0);
 
   return (
@@ -42,9 +40,9 @@ export const SuperAdminOverviewPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">National Overview</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Dashboard</h1>
           <p className="text-sm text-slate-500 mt-1 font-medium">
-            Real-time inter-hospital inventory telemetry & verified blood transfers
+            National inter-hospital emergency coordination & blood stock overview
           </p>
         </div>
 
@@ -57,11 +55,11 @@ export const SuperAdminOverviewPage: React.FC = () => {
             <span>Manage Hospitals</span>
           </button>
           <button
-            onClick={() => navigate('/super-admin/emergency-monitoring')}
+            onClick={() => navigate('/super-admin/emergency-requests')}
             className="px-5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 rounded-2xl text-xs font-bold shadow-sm transition-all flex items-center space-x-2 cursor-pointer"
           >
             <Radio className="w-4 h-4 text-rose-500" />
-            <span>Emergency Radar</span>
+            <span>Emergency Requests</span>
           </button>
         </div>
       </div>
@@ -78,21 +76,21 @@ export const SuperAdminOverviewPage: React.FC = () => {
         <StatCard
           title="Active Emergencies"
           value={activeEmergencies}
-          subtitle="Real-time multi-centre requests"
+          subtitle="Awaiting hospital acceptance"
           icon={Radio}
           color="rose"
         />
         <StatCard
-          title="Completed Transfers"
-          value={completedTransfers}
-          subtitle="Cold-chain verified"
-          icon={Truck}
+          title="Connected Hospitals"
+          value={connectedRequests}
+          subtitle="Emergencies matched & accepted"
+          icon={Droplet}
           color="emerald"
         />
         <StatCard
           title="Available Blood Units"
           value={totalUnitsInGrid}
-          subtitle="PRBC, Platelets & FFP"
+          subtitle="Total verified grid stock"
           icon={Droplet}
           color="blue"
         />
