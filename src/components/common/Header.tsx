@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { markAsRead, markAllAsRead } from '../../store/slices/notificationSlice';
@@ -6,6 +6,10 @@ import { UserRole } from '../../types';
 import {
   Bell,
   Menu,
+  CheckCheck,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,10 +22,46 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
   const location = useLocation();
   const { currentUser, activeRole } = useAppSelector((state) => state.auth);
   const { hospitals } = useAppSelector((state) => state.hospitals);
-  const { notifications, unreadCount } = useAppSelector((state) => state.notifications);
+  const { notifications } = useAppSelector((state) => state.notifications);
 
   const [showNotifMenu, setShowNotifMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking anywhere outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setShowNotifMenu(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Filter notifications relevant to active user persona & hospital
+  const roleFilteredNotifications = notifications.filter((notif) => {
+    if (notif.targetRole && notif.targetRole !== 'ALL') {
+      if (notif.targetRole !== activeRole && notif.targetRole !== currentUser?.role) {
+        return false;
+      }
+    }
+    if (notif.hospitalId && activeRole !== 'SUPER_ADMIN') {
+      if (currentUser?.hospitalId && notif.hospitalId !== currentUser.hospitalId) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const activeUnreadCount = roleFilteredNotifications.filter((n) => !n.read).length;
 
   // Dynamic Hospital Name
   const assignedHospital = hospitals.find((h) => h.id === currentUser?.hospitalId);
@@ -54,7 +94,6 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
     return 'Dashboard';
   };
 
-
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
       case 'SUPER_ADMIN':
@@ -69,6 +108,18 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
   };
 
   const roleBadge = getRoleBadge(activeRole || currentUser?.role);
+
+  const getNotifIcon = (type: string) => {
+    switch (type) {
+      case 'SUCCESS':
+        return <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />;
+      case 'CRITICAL':
+      case 'WARNING':
+        return <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />;
+      default:
+        return <Info className="w-4 h-4 text-[#0d9488] shrink-0 mt-0.5" />;
+    }
+  };
 
   return (
     <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-6 sm:px-8 z-20 sticky top-0 shadow-2xs">
@@ -97,19 +148,17 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
 
       {/* Right: Dynamic Hospital / Node Indicator + Notifications + User Profile */}
       <div className="flex items-center space-x-3 sm:space-x-4 shrink-0">
-
-
-        {/* Notifications Icon */}
-        <div className="relative">
+        {/* Notifications Icon & Dropdown */}
+        <div className="relative" ref={notifRef}>
           <button
             type="button"
             onClick={() => setShowNotifMenu(!showNotifMenu)}
             className="relative p-2.5 rounded-full text-slate-500 hover:text-emerald-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white">
-                {unreadCount}
+            {activeUnreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs animate-pulse">
+                {activeUnreadCount}
               </span>
             )}
           </button>
@@ -117,28 +166,58 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
           {showNotifMenu && (
             <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white shadow-2xl border border-slate-100 p-3 z-50 animate-in fade-in slide-in-from-top-1">
               <div className="flex items-center justify-between p-3 border-b border-slate-100">
-                <span className="text-sm font-bold text-slate-900">Notifications</span>
-                {unreadCount > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-slate-900">Notifications</span>
+                  {activeUnreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700">
+                      {activeUnreadCount} unread
+                    </span>
+                  )}
+                </div>
+                {activeUnreadCount > 0 && (
                   <button
                     onClick={() => dispatch(markAllAsRead())}
-                    className="text-xs text-emerald-600 font-bold hover:underline cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-emerald-600 font-bold hover:text-emerald-700 hover:underline cursor-pointer transition-colors"
                   >
-                    Mark read
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span>Mark read</span>
                   </button>
                 )}
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 my-1">
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-xs text-slate-400">No new notifications</div>
+              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100 my-1">
+                {roleFilteredNotifications.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-slate-400">
+                    No notifications for your hospital node.
+                  </div>
                 ) : (
-                  notifications.map((notif) => (
+                  roleFilteredNotifications.map((notif) => (
                     <div
                       key={notif.id}
-                      onClick={() => dispatch(markAsRead(notif.id))}
-                      className="p-3 text-xs hover:bg-slate-50 rounded-xl cursor-pointer"
+                      onClick={() => {
+                        dispatch(markAsRead(notif.id));
+                        if (notif.link) navigate(notif.link);
+                      }}
+                      className={`p-3 text-xs rounded-2xl cursor-pointer transition-colors flex items-start gap-2.5 ${
+                        notif.read
+                          ? 'hover:bg-slate-50 opacity-80'
+                          : 'bg-emerald-50/50 hover:bg-emerald-50 font-medium'
+                      }`}
                     >
-                      <p className="font-bold text-slate-900">{notif.title}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{notif.message}</p>
+                      {getNotifIcon(notif.type)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-slate-900 truncate">{notif.title}</p>
+                          <span className="text-[10px] text-slate-400 shrink-0 ml-2 font-normal">
+                            {notif.timestamp}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2 leading-relaxed">
+                          {notif.message}
+                        </p>
+                      </div>
+                      {!notif.read && (
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                      )}
                     </div>
                   ))
                 )}

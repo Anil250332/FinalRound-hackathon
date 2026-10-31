@@ -389,7 +389,19 @@ export const apiService = {
   },
 
   async markNotificationRead(id: string): Promise<void> {
-    await apiClient.patch(`/notifications/${id}/read`);
+    try {
+      await apiClient.patch(`/notifications/${id}/read`);
+    } catch {
+      // Safe fallback
+    }
+  },
+
+  async markAllNotificationsRead(): Promise<void> {
+    try {
+      await apiClient.patch('/notifications/read-all');
+    } catch {
+      // Safe fallback
+    }
   },
 
   // Audit Logs

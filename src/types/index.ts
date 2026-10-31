@@ -184,6 +184,8 @@ export interface AppNotification {
   read: boolean;
   link?: string;
   requestId?: string;
+  targetRole?: UserRole | 'ALL';
+  hospitalId?: string;
 }
 
 export interface AuditLog {

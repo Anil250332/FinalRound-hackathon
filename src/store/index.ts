@@ -4,6 +4,7 @@ import inventoryReducer from './slices/inventorySlice';
 import emergencyReducer from './slices/emergencySlice';
 import hospitalReducer from './slices/hospitalSlice';
 import notificationReducer from './slices/notificationSlice';
+import toastReducer from './slices/toastSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     emergency: emergencyReducer,
     hospitals: hospitalReducer,
     notifications: notificationReducer,
+    toast: toastReducer,
   },
 });
 

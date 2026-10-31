@@ -10,7 +10,8 @@ import {
   verifyHospitalThunk,
   createHospitalThunk,
 } from '../../store/slices/hospitalSlice';
-import { addAuditLog } from '../../store/slices/notificationSlice';
+import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
+import { addToast } from '../../store/slices/toastSlice';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import {
@@ -37,11 +38,6 @@ export const HospitalManagementPage: React.FC = () => {
   }, [dispatch]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [createdAdminCredentials, setCreatedAdminCredentials] = useState<{
-    hospitalName: string;
-    email: string;
-    password: string;
-  } | null>(null);
 
   const [newHosp, setNewHosp] = useState({
     name: '',
@@ -68,6 +64,21 @@ export const HospitalManagementPage: React.FC = () => {
     await dispatch(verifyHospitalThunk({ id: hospitalId, status: 'VERIFIED' }));
     dispatch(fetchHospitals());
     dispatch(
+      addToast({
+        type: 'success',
+        title: 'Hospital Verified',
+        message: `${hospitalName} is now authorized and active on the blood grid.`,
+      })
+    );
+    dispatch(
+      addNotification({
+        title: '✅ Hospital Verified',
+        message: `${hospitalName} verification approved by Super Admin.`,
+        type: 'SUCCESS',
+        targetRole: 'ALL',
+      })
+    );
+    dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',
         userName: currentUser?.name || 'Super Admin',
@@ -84,6 +95,13 @@ export const HospitalManagementPage: React.FC = () => {
     dispatch(suspendHospital(hospitalId));
     await dispatch(verifyHospitalThunk({ id: hospitalId, status: 'SUSPENDED' }));
     dispatch(fetchHospitals());
+    dispatch(
+      addToast({
+        type: 'warning',
+        title: 'Hospital Suspended',
+        message: `${hospitalName} access has been temporarily suspended.`,
+      })
+    );
     dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',
@@ -152,11 +170,24 @@ export const HospitalManagementPage: React.FC = () => {
       console.warn('LocalStorage cache error:', e);
     }
 
-    setCreatedAdminCredentials({
-      hospitalName: newHosp.name,
-      email: effectiveAdminEmail,
-      password: effectiveAdminPassword,
-    });
+    // Show elegant toast notification
+    dispatch(
+      addToast({
+        type: 'success',
+        title: 'Hospital Registered Successfully',
+        message: `${newHosp.name} registered. Login: ${effectiveAdminEmail}`,
+      })
+    );
+
+    // Push into real-time notification feed
+    dispatch(
+      addNotification({
+        title: '🏥 New Hospital Registered',
+        message: `${newHosp.name} (${newHosp.city || 'State'}) joined the national blood grid.`,
+        type: 'SUCCESS',
+        targetRole: 'ALL',
+      })
+    );
 
     // Refresh to verify persistence
     dispatch(fetchHospitals());
@@ -222,44 +253,6 @@ export const HospitalManagementPage: React.FC = () => {
           <span>Register New Hospital</span>
         </button>
       </div>
-
-      {createdAdminCredentials && (
-        <div className="p-5 rounded-3xl bg-teal-50 border border-teal-200 text-slate-800 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[#0d9488]">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <h3 className="font-extrabold text-sm text-slate-900">
-                Hospital Registered & Admin Account Created!
-              </h3>
-            </div>
-            <button
-              onClick={() => setCreatedAdminCredentials(null)}
-              className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
-            >
-              Dismiss
-            </button>
-          </div>
-          <p className="text-xs text-slate-600 mt-1">
-            <strong>{createdAdminCredentials.hospitalName}</strong> can now log in using the credentials below:
-          </p>
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-            <div className="bg-white p-3 rounded-xl border border-teal-100">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Login Email</span>
-              <span className="font-mono text-xs font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
-                <Mail className="w-3.5 h-3.5 text-[#0d9488]" />
-                {createdAdminCredentials.email}
-              </span>
-            </div>
-            <div className="bg-white p-3 rounded-xl border border-teal-100">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">Login Password</span>
-              <span className="font-mono text-xs font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
-                <Lock className="w-3.5 h-3.5 text-[#0d9488]" />
-                {createdAdminCredentials.password}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">

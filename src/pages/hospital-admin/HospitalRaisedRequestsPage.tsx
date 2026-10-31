@@ -19,6 +19,9 @@ import {
   PlusCircle,
 } from 'lucide-react';
 
+import { addToast } from '../../store/slices/toastSlice';
+import { addNotification } from '../../store/slices/notificationSlice';
+
 export const HospitalRaisedRequestsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
@@ -32,7 +35,6 @@ export const HospitalRaisedRequestsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successBanner, setSuccessBanner] = useState<string | null>(null);
 
   // New emergency request form state
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>('O-');
@@ -61,16 +63,36 @@ export const HospitalRaisedRequestsPage: React.FC = () => {
         })
       );
       setIsCreateModalOpen(false);
-      setSuccessBanner(
-        `Emergency request for ${requiredUnits} units of ${bloodGroup} ${component} broadcasted to all network hospitals!`
+
+      dispatch(
+        addToast({
+          type: 'success',
+          title: 'Emergency Request Broadcasted',
+          message: `${requiredUnits} units of ${bloodGroup} ${component} broadcasted across network.`,
+        })
       );
+
+      dispatch(
+        addNotification({
+          title: '🚨 Emergency Blood Request',
+          message: `${requiredUnits} units of ${bloodGroup} (${component}) requested by ${hospitalName}.`,
+          type: 'CRITICAL',
+          targetRole: 'ALL',
+        })
+      );
+
       dispatch(fetchEmergencyRequests());
       setPatientDiagnosis('');
       setClinicalNotes('');
-      setTimeout(() => setSuccessBanner(null), 5000);
     } catch (err: any) {
       console.error('Failed to create emergency request:', err);
-      alert('Failed to broadcast request. Please try again.');
+      dispatch(
+        addToast({
+          type: 'error',
+          title: 'Broadcast Failed',
+          message: 'Unable to broadcast request. Please try again.',
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -129,13 +151,6 @@ export const HospitalRaisedRequestsPage: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {successBanner && (
-          <div className="mt-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{successBanner}</span>
-          </div>
-        )}
 
         {/* Counter Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">

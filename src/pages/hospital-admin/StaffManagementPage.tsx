@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAppSelector } from '../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { User, UserRole } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { apiService } from '../../services/apiService';
+import { addToast } from '../../store/slices/toastSlice';
+import { addNotification } from '../../store/slices/notificationSlice';
 import {
   Users,
   UserPlus,
@@ -20,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export const StaffManagementPage: React.FC = () => {
+  const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
   const { hospitals } = useAppSelector((state) => state.hospitals);
   const matchedHosp = hospitals.find((h) => h.id === currentUser?.hospitalId);
@@ -31,11 +34,6 @@ export const StaffManagementPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [createdDoctorBanner, setCreatedDoctorBanner] = useState<{
-    name: string;
-    email: string;
-    password?: string;
-  } | null>(null);
 
   // New staff form state
   const [newStaff, setNewStaff] = useState({
@@ -121,11 +119,26 @@ export const StaffManagementPage: React.FC = () => {
         console.warn(err);
       }
 
-      setCreatedDoctorBanner({
-        name: newStaff.name,
-        email: newStaff.email,
-        password: newStaff.password,
-      });
+      // Show elegant toast notification
+      dispatch(
+        addToast({
+          type: 'success',
+          title: 'Doctor Account Created',
+          message: `${newStaff.name} can now log into Doctor / Officer Dashboard (${newStaff.email}).`,
+        })
+      );
+
+      // Push into Bell Notification feed
+      dispatch(
+        addNotification({
+          title: '👨‍⚕️ New Doctor Enrolled',
+          message: `${newStaff.name} added as Doctor / Officer under ${hospitalName}.`,
+          type: 'INFO',
+          targetRole: 'HOSPITAL_ADMIN',
+          hospitalId: hospitalId,
+        })
+      );
+
       setStaffList([created, ...staffList]);
       setIsModalOpen(false);
       setNewStaff({
@@ -137,7 +150,13 @@ export const StaffManagementPage: React.FC = () => {
       });
     } catch (err) {
       console.error('Failed to create staff member:', err);
-      alert('Failed to add user. Ensure email is unique.');
+      dispatch(
+        addToast({
+          type: 'error',
+          title: 'Failed to Add Doctor',
+          message: 'Ensure the email address is unique.',
+        })
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -185,40 +204,6 @@ export const StaffManagementPage: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {createdDoctorBanner && (
-          <div className="mt-5 p-4 rounded-2xl bg-teal-50 border border-teal-200 text-slate-800 shadow-sm animate-in fade-in">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[#0d9488]">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                <h4 className="font-extrabold text-sm text-slate-900">
-                  Doctor Account Created Successfully!
-                </h4>
-              </div>
-              <button
-                onClick={() => setCreatedDoctorBanner(null)}
-                className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                Dismiss
-              </button>
-            </div>
-            <p className="text-xs text-slate-600 mt-1">
-              <strong>{createdDoctorBanner.name}</strong> can now log into the Doctor / Officer Dashboard using these credentials:
-            </p>
-            <div className="mt-2.5 flex flex-wrap gap-3">
-              <div className="bg-white px-3 py-1.5 rounded-xl border border-teal-100 text-xs">
-                <span className="text-[10px] text-slate-400 font-bold uppercase block">Login Email</span>
-                <span className="font-mono font-bold text-slate-900">{createdDoctorBanner.email}</span>
-              </div>
-              {createdDoctorBanner.password && (
-                <div className="bg-white px-3 py-1.5 rounded-xl border border-teal-100 text-xs">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Password</span>
-                  <span className="font-mono font-bold text-slate-900">{createdDoctorBanner.password}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Quick Counters */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100">
