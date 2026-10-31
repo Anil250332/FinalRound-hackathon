@@ -5,6 +5,7 @@ import { apiService } from '../../services/apiService';
 import { EmergencyRequest } from '../../types';
 import { StatusBadge } from '../../components/common/Badge';
 import { SkeletonRequestCard } from '../../components/common/Skeleton';
+import { AcceptConfirmationModal } from '../../components/common/AcceptConfirmationModal';
 import {
   Inbox,
   Radio,
@@ -34,6 +35,8 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [acceptingId, setAcceptingId] = useState<string | null>(null);
   const [successBanner, setSuccessBanner] = useState<string | null>(null);
+  const [selectedRequestToAccept, setSelectedRequestToAccept] = useState<EmergencyRequest | null>(null);
+  const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchEmergencyRequests());
@@ -49,15 +52,14 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
     (r) => r.acceptedByHospitalId === hospitalId || (r.status === 'ACCEPTED' && r.acceptedByHospitalName?.includes(hospitalName))
   );
 
-  const handleAcceptRequest = async (req: EmergencyRequest) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to accept the emergency request for ${req.requiredUnits} units of ${req.bloodGroup} ${req.component} from ${req.requestingHospitalName}?`
-      )
-    ) {
-      return;
-    }
+  const handleOpenAcceptModal = (req: EmergencyRequest) => {
+    setSelectedRequestToAccept(req);
+    setIsAcceptModalOpen(true);
+  };
 
+  const handleConfirmAccept = async () => {
+    if (!selectedRequestToAccept) return;
+    const req = selectedRequestToAccept;
     setAcceptingId(req.id);
     try {
       await apiService.acceptEmergencyRequest(req.id, hospitalId);
@@ -65,6 +67,8 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
         `Emergency request ${req.requestId} accepted! You are now directly connected with ${req.requestingHospitalName}.`
       );
       dispatch(fetchEmergencyRequests());
+      setIsAcceptModalOpen(false);
+      setSelectedRequestToAccept(null);
       setActiveTab('ACCEPTED_BY_US');
       setTimeout(() => setSuccessBanner(null), 6000);
     } catch (err: any) {
@@ -235,7 +239,7 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
 
                     {!isAccepted && (
                       <button
-                        onClick={() => handleAcceptRequest(req)}
+                        onClick={() => handleOpenAcceptModal(req)}
                         disabled={acceptingId === req.id}
                         className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
                       >
@@ -294,6 +298,19 @@ export const HospitalIncomingRequestsPage: React.FC = () => {
           })
         )}
       </div>
+      {/* Custom Confirmation Modal */}
+      <AcceptConfirmationModal
+        isOpen={isAcceptModalOpen}
+        onClose={() => {
+          if (!acceptingId) {
+            setIsAcceptModalOpen(false);
+            setSelectedRequestToAccept(null);
+          }
+        }}
+        onConfirm={handleConfirmAccept}
+        request={selectedRequestToAccept}
+        isSubmitting={acceptingId !== null}
+      />
     </div>
   );
 };
