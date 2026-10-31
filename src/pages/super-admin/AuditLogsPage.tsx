@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { useAppSelector } from '../../hooks/redux';
+import React, { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchAuditLogs } from '../../store/slices/notificationSlice';
+import { SkeletonTableRow } from '../../components/common/Skeleton';
 import {
   FileText,
   Search,
@@ -12,9 +14,14 @@ import {
 } from 'lucide-react';
 
 export const AuditLogsPage: React.FC = () => {
-  const { auditLogs } = useAppSelector((state) => state.notifications);
+  const dispatch = useAppDispatch();
+  const { auditLogs, isLoading } = useAppSelector((state) => state.notifications);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAction, setSelectedAction] = useState<string>('ALL');
+
+  useEffect(() => {
+    dispatch(fetchAuditLogs());
+  }, [dispatch]);
 
   const filteredLogs = auditLogs.filter((log) => {
     const matchesSearch =
@@ -96,7 +103,22 @@ export const AuditLogsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
-              {filteredLogs.map((log) => (
+              {isLoading ? (
+                <>
+                  <SkeletonTableRow columns={6} />
+                  <SkeletonTableRow columns={6} />
+                  <SkeletonTableRow columns={6} />
+                  <SkeletonTableRow columns={6} />
+                  <SkeletonTableRow columns={6} />
+                </>
+              ) : filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400">
+                    No compliance audit records found matching your filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="py-3.5 px-5 font-mono text-[11px] text-slate-500 whitespace-nowrap">
                     {log.timestamp}

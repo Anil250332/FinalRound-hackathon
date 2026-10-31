@@ -18,9 +18,11 @@ export const HospitalOverviewPage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.inventory);
   const { transfers } = useAppSelector((state) => state.transfer);
+  const { hospitals } = useAppSelector((state) => state.hospitals);
 
   const hospitalId = currentUser?.hospitalId || 'hosp-1';
-  const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital & Blood Centre';
+  const currentHosp = hospitals.find((h) => h.id === hospitalId);
+  const hospitalName = currentHosp?.name || currentUser?.hospitalName || 'City Care Hospital';
 
   const hospitalInventory = items.filter((i) => i.hospitalId === hospitalId);
   const totalAvailableUnits = hospitalInventory.reduce((acc, curr) => acc + curr.availableUnits, 0);
@@ -38,16 +40,16 @@ export const HospitalOverviewPage: React.FC = () => {
           <div className="flex items-center space-x-2">
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{hospitalName}</h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-              VERIFIED
+              {currentHosp?.isVerified ? 'VERIFIED' : 'ACTIVE'}
             </span>
           </div>
           <p className="text-sm text-slate-500 mt-1 font-medium flex items-center gap-2">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-slate-400" />
-              Ansari Nagar, New Delhi
+              {currentHosp ? `${currentHosp.address}, ${currentHosp.city}` : 'Ansari Nagar, New Delhi'}
             </span>
             <span>•</span>
-            <span>License: DL-BB-2024-0019</span>
+            <span>License: {currentHosp?.licenseNumber || 'DL-BB-2024-0019'}</span>
           </p>
         </div>
 

@@ -7,7 +7,7 @@ import { fetchHospitals } from '../store/slices/hospitalSlice';
 import { fetchEmergencyRequests } from '../store/slices/emergencySlice';
 import { fetchHospitalInventory } from '../store/slices/inventorySlice';
 import { fetchHospitalTransfers } from '../store/slices/transferSlice';
-import { fetchNotifications } from '../store/slices/notificationSlice';
+import { fetchNotifications, fetchAuditLogs } from '../store/slices/notificationSlice';
 import { checkServerHealth } from '../services/api';
 import { setServerAwake } from '../store/slices/authSlice';
 
@@ -24,6 +24,7 @@ export const AppLayout: React.FC = () => {
     dispatch(fetchHospitals());
     dispatch(fetchEmergencyRequests());
     dispatch(fetchNotifications());
+    dispatch(fetchAuditLogs());
 
     if (currentUser?.hospitalId) {
       dispatch(fetchHospitalInventory(currentUser.hospitalId));
