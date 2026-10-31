@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { updateHospitalProfile } from '../../store/slices/hospitalSlice';
 import {
@@ -19,20 +19,49 @@ export const HospitalProfilePage: React.FC = () => {
   const { currentUser } = useAppSelector((state) => state.auth);
   const { hospitals } = useAppSelector((state) => state.hospitals);
 
-  const currentHosp = hospitals.find((h) => h.id === currentUser?.hospitalId) || hospitals[0];
+  const currentHosp = hospitals.find((h) => h.id === currentUser?.hospitalId) || hospitals[0] || {
+    id: currentUser?.hospitalId || 'hosp-1',
+    name: currentUser?.hospitalName || 'City Care Hospital',
+    licenseNumber: 'DL-BB-2024-0019',
+    phone: '+91 98260 11101',
+    email: 'admin@citycare.org',
+    address: 'Ansari Nagar',
+    city: 'New Delhi',
+    state: 'Delhi',
+    pincode: '110029',
+    totalBeds: 2000,
+    hasBloodBank: true,
+  };
 
   const [formData, setFormData] = useState({
-    name: currentHosp.name,
-    licenseNumber: currentHosp.licenseNumber,
-    phone: currentHosp.phone,
-    email: currentHosp.email,
-    address: currentHosp.address,
-    city: currentHosp.city,
-    state: currentHosp.state,
-    pincode: currentHosp.pincode,
+    name: currentHosp.name || '',
+    licenseNumber: currentHosp.licenseNumber || '',
+    phone: currentHosp.phone || '',
+    email: currentHosp.email || '',
+    address: currentHosp.address || '',
+    city: currentHosp.city || '',
+    state: currentHosp.state || '',
+    pincode: currentHosp.pincode || '',
     totalBeds: currentHosp.totalBeds || 2000,
-    hasBloodBank: currentHosp.hasBloodBank,
+    hasBloodBank: currentHosp.hasBloodBank ?? true,
   });
+
+  useEffect(() => {
+    if (currentHosp) {
+      setFormData({
+        name: currentHosp.name || '',
+        licenseNumber: currentHosp.licenseNumber || '',
+        phone: currentHosp.phone || '',
+        email: currentHosp.email || '',
+        address: currentHosp.address || '',
+        city: currentHosp.city || '',
+        state: currentHosp.state || '',
+        pincode: currentHosp.pincode || '',
+        totalBeds: currentHosp.totalBeds || 2000,
+        hasBloodBank: currentHosp.hasBloodBank ?? true,
+      });
+    }
+  }, [currentHosp?.id, currentHosp?.name]);
 
   const [isSaved, setIsSaved] = useState(false);
 
