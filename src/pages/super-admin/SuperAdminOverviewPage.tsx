@@ -20,7 +20,6 @@ export const SuperAdminOverviewPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { hospitals } = useAppSelector((state) => state.hospitals);
   const { requests } = useAppSelector((state) => state.emergency);
-  const { transfers } = useAppSelector((state) => state.transfer);
   const { items } = useAppSelector((state) => state.inventory);
 
   useEffect(() => {

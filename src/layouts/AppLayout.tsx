@@ -6,7 +6,6 @@ import { Sidebar } from '../components/common/Sidebar';
 import { fetchHospitals } from '../store/slices/hospitalSlice';
 import { fetchEmergencyRequests } from '../store/slices/emergencySlice';
 import { fetchHospitalInventory } from '../store/slices/inventorySlice';
-import { fetchHospitalTransfers } from '../store/slices/transferSlice';
 import { fetchNotifications, fetchAuditLogs } from '../store/slices/notificationSlice';
 import { checkServerHealth } from '../services/api';
 import { setServerAwake } from '../store/slices/authSlice';
@@ -31,7 +30,6 @@ export const AppLayout: React.FC = () => {
         ? currentUser.hospitalId
         : '6ae5bfa3a41657de36e25a1e';
     dispatch(fetchHospitalInventory(activeHospId));
-    dispatch(fetchHospitalTransfers(activeHospId));
   }, [dispatch, currentUser?.hospitalId]);
 
   return (
