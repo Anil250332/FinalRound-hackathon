@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { acceptOffer, rejectOffer, updateRequestStatus } from '../../store/slices/emergencySlice';
+import {
+  acceptOffer,
+  rejectOffer,
+  updateRequestStatus,
+  acceptOfferApi,
+  fetchEmergencyRequests,
+} from '../../store/slices/emergencySlice';
 import { reserveStock } from '../../store/slices/inventorySlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { StatusBadge } from '../../components/common/Badge';
@@ -26,6 +32,10 @@ export const RequestDetailsPage: React.FC = () => {
   const { requests } = useAppSelector((state) => state.emergency);
   const { currentUser } = useAppSelector((state) => state.auth);
 
+  useEffect(() => {
+    dispatch(fetchEmergencyRequests());
+  }, [dispatch]);
+
   // If id is provided, find it; otherwise take the first request
   const currentRequest = id ? requests.find((r) => r.id === id) || requests[0] : requests[0];
 
@@ -48,6 +58,12 @@ export const RequestDetailsPage: React.FC = () => {
     if (!offer) return;
 
     dispatch(acceptOffer({ requestId: currentRequest.id, offerId }));
+    dispatch(
+      acceptOfferApi({
+        offerId,
+        requestingHospitalId: currentUser?.hospitalId || 'hosp-3',
+      })
+    );
 
     // Lock inventory reservation
     dispatch(

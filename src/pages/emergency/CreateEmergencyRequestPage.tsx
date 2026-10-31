@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { createRequest } from '../../store/slices/emergencySlice';
+import { createRequest, createEmergencyRequestApi } from '../../store/slices/emergencySlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { BloodGroup, BloodComponent, UrgencyLevel } from '../../types';
 import {
@@ -44,6 +44,17 @@ export const CreateEmergencyRequestPage: React.FC = () => {
   const handleBroadcastSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsBroadcasting(true);
+
+    dispatch(
+      createEmergencyRequestApi({
+        requestingHospitalId: hospitalId,
+        bloodGroup,
+        component,
+        requiredUnits,
+        urgency,
+        additionalNotes: clinicalNotes,
+      })
+    );
 
     setTimeout(() => {
       dispatch(

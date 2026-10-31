@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import {
   addOrUpdateStock,
   setBloodGroupFilter,
   setComponentFilter,
   setSearchQuery,
+  fetchHospitalInventory,
+  addStockItem,
 } from '../../store/slices/inventorySlice';
 import { BloodGroup, BloodComponent } from '../../types';
 import { StatCard } from '../../components/common/StatCard';
 import { Modal } from '../../components/common/Modal';
+import { SkeletonCard, Skeleton } from '../../components/common/Skeleton';
 import {
   Droplet,
   CheckCircle2,
@@ -25,12 +28,18 @@ import {
 export const BloodInventoryPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { items, selectedBloodGroupFilter, searchQuery } = useAppSelector(
+  const { items, selectedBloodGroupFilter, searchQuery, isLoading } = useAppSelector(
     (state) => state.inventory
   );
 
   const hospitalId = currentUser?.hospitalId || 'hosp-1';
   const hospitalName = currentUser?.hospitalName || 'AIIMS Central Hospital & Blood Centre';
+
+  useEffect(() => {
+    if (hospitalId) {
+      dispatch(fetchHospitalInventory(hospitalId));
+    }
+  }, [dispatch, hospitalId]);
 
   const [activeTab, setActiveTab] = useState<'ALL' | 'AVAILABLE' | 'RESERVED' | 'CRITICAL'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,6 +66,7 @@ export const BloodInventoryPage: React.FC = () => {
   const handleStockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(addOrUpdateStock(formData));
+    dispatch(addStockItem(formData));
     setIsModalOpen(false);
   };
 
@@ -181,11 +191,21 @@ export const BloodInventoryPage: React.FC = () => {
 
       {/* Blood Group Cards Grid with Curved Colored Headers matching Image 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map((item) => {
-          const headerBg = getHeaderColor(item.bloodGroup);
-          return (
-            <div
-              key={item.id}
+        {isLoading && filteredItems.length === 0 ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : (
+          filteredItems.map((item) => {
+            const headerBg = getHeaderColor(item.bloodGroup);
+            return (
+              <div
+                key={item.id}
               className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
             >
               {/* Colored Curved Header */}
@@ -249,7 +269,7 @@ export const BloodInventoryPage: React.FC = () => {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
       {/* Add / Update Stock Modal */}

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchHospitalInventory } from '../../store/slices/inventorySlice';
+import { fetchEmergencyRequests } from '../../store/slices/emergencySlice';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/Badge';
 import {
@@ -16,11 +18,19 @@ import {
 
 export const BloodBankOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { items } = useAppSelector((state) => state.inventory);
+  const { items, isLoading } = useAppSelector((state) => state.inventory);
   const { requests } = useAppSelector((state) => state.emergency);
 
   const hospitalId = currentUser?.hospitalId || 'hosp-1';
+
+  useEffect(() => {
+    if (hospitalId) {
+      dispatch(fetchHospitalInventory(hospitalId));
+    }
+    dispatch(fetchEmergencyRequests());
+  }, [dispatch, hospitalId]);
   const myInventory = items.filter((i) => i.hospitalId === hospitalId);
 
   const totalAvailable = myInventory.reduce((acc, curr) => acc + curr.availableUnits, 0);

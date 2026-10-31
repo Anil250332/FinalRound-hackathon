@@ -1,5 +1,7 @@
-import React from 'react';
-import { useAppSelector } from '../../hooks/redux';
+import React, { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchHospitals } from '../../store/slices/hospitalSlice';
+import { fetchEmergencyRequests } from '../../store/slices/emergencySlice';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/Badge';
 import {
@@ -15,10 +17,16 @@ import { useNavigate } from 'react-router-dom';
 
 export const SuperAdminOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { hospitals } = useAppSelector((state) => state.hospitals);
   const { requests } = useAppSelector((state) => state.emergency);
   const { transfers } = useAppSelector((state) => state.transfer);
   const { items } = useAppSelector((state) => state.inventory);
+
+  useEffect(() => {
+    dispatch(fetchHospitals());
+    dispatch(fetchEmergencyRequests());
+  }, [dispatch]);
 
   const totalHospitals = hospitals.length;
   const verifiedHospitals = hospitals.filter((h) => h.verified).length;

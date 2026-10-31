@@ -1,18 +1,46 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AppNotification, AuditLog } from '../../types';
 import { INITIAL_NOTIFICATIONS, INITIAL_AUDIT_LOGS } from '../../services/mockData';
+import { apiService } from '../../services/apiService';
 
 interface NotificationState {
   notifications: AppNotification[];
   auditLogs: AuditLog[];
   unreadCount: number;
+  isLoading: boolean;
 }
 
 const initialState: NotificationState = {
   notifications: INITIAL_NOTIFICATIONS,
   auditLogs: INITIAL_AUDIT_LOGS,
   unreadCount: INITIAL_NOTIFICATIONS.filter((n) => !n.read).length,
+  isLoading: false,
 };
+
+// Async Thunks
+export const fetchNotifications = createAsyncThunk(
+  'notifications/fetchNotifications',
+  async (_, { rejectWithValue }) => {
+    try {
+      const list = await apiService.getNotifications();
+      return list;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to fetch notifications');
+    }
+  }
+);
+
+export const fetchAuditLogs = createAsyncThunk(
+  'notifications/fetchAuditLogs',
+  async (_, { rejectWithValue }) => {
+    try {
+      const list = await apiService.getAuditLogs();
+      return list;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to fetch audit logs');
+    }
+  }
+);
 
 export const notificationSlice = createSlice({
   name: 'notifications',
@@ -51,6 +79,20 @@ export const notificationSlice = createSlice({
       };
       state.auditLogs.unshift(newLog);
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchNotifications.fulfilled, (state, action) => {
+      if (action.payload && action.payload.length > 0) {
+        state.notifications = action.payload;
+        state.unreadCount = action.payload.filter((n) => !n.read).length;
+      }
+    });
+
+    builder.addCase(fetchAuditLogs.fulfilled, (state, action) => {
+      if (action.payload && action.payload.length > 0) {
+        state.auditLogs = action.payload;
+      }
+    });
   },
 });
 

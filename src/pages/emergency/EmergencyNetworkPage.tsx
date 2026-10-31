@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { useAppSelector } from '../../hooks/redux';
+import React, { useState, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchHospitals } from '../../store/slices/hospitalSlice';
 import { StatusBadge } from '../../components/common/Badge';
+import { SkeletonCard } from '../../components/common/Skeleton';
 import { BloodGroup } from '../../types';
 import {
   Network,
@@ -15,8 +17,13 @@ import {
 } from 'lucide-react';
 
 export const EmergencyNetworkPage: React.FC = () => {
-  const { hospitals } = useAppSelector((state) => state.hospitals);
+  const dispatch = useAppDispatch();
+  const { hospitals, isLoading } = useAppSelector((state) => state.hospitals);
   const { items } = useAppSelector((state) => state.inventory);
+
+  useEffect(() => {
+    dispatch(fetchHospitals());
+  }, [dispatch]);
 
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<BloodGroup | 'ALL'>('ALL');
@@ -72,7 +79,14 @@ export const EmergencyNetworkPage: React.FC = () => {
 
       {/* Hospital Network Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredHospitals.map((hosp) => {
+        {isLoading && filteredHospitals.length === 0 ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : (
+          filteredHospitals.map((hosp) => {
           // Calculate stock for this hospital
           const hospStock = items.filter((i) => i.hospitalId === hosp.id);
           const totalUnits = hospStock.reduce((acc, curr) => acc + curr.availableUnits, 0);
@@ -119,7 +133,7 @@ export const EmergencyNetworkPage: React.FC = () => {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );

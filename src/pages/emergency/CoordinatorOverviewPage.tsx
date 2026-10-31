@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { fetchEmergencyRequests } from '../../store/slices/emergencySlice';
+import { fetchHospitalTransfers } from '../../store/slices/transferSlice';
 import { StatCard } from '../../components/common/StatCard';
 import { StatusBadge } from '../../components/common/Badge';
+import { SkeletonCard, Skeleton } from '../../components/common/Skeleton';
 import {
   Radio,
   PlusCircle,
@@ -16,12 +19,20 @@ import {
 
 export const CoordinatorOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state) => state.auth);
-  const { requests } = useAppSelector((state) => state.emergency);
+  const { requests, isLoading } = useAppSelector((state) => state.emergency);
   const { transfers } = useAppSelector((state) => state.transfer);
 
   const hospitalId = currentUser?.hospitalId || 'hosp-3';
   const hospitalName = currentUser?.hospitalName || 'Fortis Memorial Emergency Centre';
+
+  useEffect(() => {
+    dispatch(fetchEmergencyRequests());
+    if (hospitalId) {
+      dispatch(fetchHospitalTransfers(hospitalId));
+    }
+  }, [dispatch, hospitalId]);
 
   // Requests created by this hospital
   const myRequests = requests.filter((r) => r.requestingHospitalId === hospitalId);

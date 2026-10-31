@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import {
   verifyHospital,
@@ -6,6 +6,9 @@ import {
   addHospital,
   setFilterType,
   setSearchQuery,
+  fetchHospitals,
+  verifyHospitalThunk,
+  createHospitalThunk,
 } from '../../store/slices/hospitalSlice';
 import { addAuditLog } from '../../store/slices/notificationSlice';
 import { StatusBadge } from '../../components/common/Badge';
@@ -28,6 +31,10 @@ export const HospitalManagementPage: React.FC = () => {
   const { hospitals, filterType, searchQuery } = useAppSelector((state) => state.hospitals);
   const { currentUser } = useAppSelector((state) => state.auth);
 
+  useEffect(() => {
+    dispatch(fetchHospitals());
+  }, [dispatch]);
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newHosp, setNewHosp] = useState({
     name: '',
@@ -48,6 +55,7 @@ export const HospitalManagementPage: React.FC = () => {
 
   const handleVerify = (hospitalId: string, hospitalName: string) => {
     dispatch(verifyHospital(hospitalId));
+    dispatch(verifyHospitalThunk({ id: hospitalId, status: 'VERIFIED' }));
     dispatch(
       addAuditLog({
         userId: currentUser?.id || 'sa-1',

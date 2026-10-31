@@ -1,12 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { BloodInventoryItem, BloodGroup, BloodComponent } from '../../types';
 import { INITIAL_INVENTORY } from '../../services/mockData';
+import { apiService } from '../../services/apiService';
 
 interface InventoryState {
   items: BloodInventoryItem[];
   selectedBloodGroupFilter: BloodGroup | 'ALL';
   selectedComponentFilter: BloodComponent | 'ALL';
   searchQuery: string;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: InventoryState = {
@@ -14,13 +17,55 @@ const initialState: InventoryState = {
   selectedBloodGroupFilter: 'ALL',
   selectedComponentFilter: 'ALL',
   searchQuery: '',
+  isLoading: false,
+  error: null,
 };
+
+// Async Thunks
+export const fetchHospitalInventory = createAsyncThunk(
+  'inventory/fetchHospitalInventory',
+  async (hospitalId: string, { rejectWithValue }) => {
+    try {
+      const items = await apiService.getHospitalInventory(hospitalId);
+      return items;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to fetch inventory');
+    }
+  }
+);
+
+export const addStockItem = createAsyncThunk(
+  'inventory/addStockItem',
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const item = await apiService.addInventoryItem(data);
+      return item;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to add stock item');
+    }
+  }
+);
+
+export const updateStockUnits = createAsyncThunk(
+  'inventory/updateStockUnits',
+  async ({ id, units, reason }: { id: string; units: number; reason?: string }, { rejectWithValue }) => {
+    try {
+      const item = await apiService.updateInventoryUnits(id, units, reason);
+      return item;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to update stock units');
+    }
+  }
+);
 
 export const inventorySlice = createSlice({
   name: 'inventory',
   initialState,
   reducers: {
-    addOrUpdateStock: (state, action: PayloadAction<Omit<BloodInventoryItem, 'id' | 'lastUpdated' | 'reservedUnits' | 'totalUnits'>>) => {
+    addOrUpdateStock: (
+      state,
+      action: PayloadAction<Omit<BloodInventoryItem, 'id' | 'lastUpdated' | 'reservedUnits' | 'totalUnits'>>
+    ) => {
       const existingIndex = state.items.findIndex(
         (item) =>
           item.hospitalId === action.payload.hospitalId &&
@@ -87,6 +132,42 @@ export const inventorySlice = createSlice({
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    // Fetch inventory
+    builder.addCase(fetchHospitalInventory.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchHospitalInventory.fulfilled, (state, action) => {
+      state.isLoading = false;
+      if (action.payload && action.payload.length > 0) {
+        state.items = action.payload;
+      }
+    });
+    builder.addCase(fetchHospitalInventory.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload as string;
+      // Keeps existing items on rejection
+    });
+
+    // Add stock item
+    builder.addCase(addStockItem.fulfilled, (state, action) => {
+      const idx = state.items.findIndex((i) => i.id === action.payload.id);
+      if (idx >= 0) {
+        state.items[idx] = action.payload;
+      } else {
+        state.items.unshift(action.payload);
+      }
+    });
+
+    // Update units
+    builder.addCase(updateStockUnits.fulfilled, (state, action) => {
+      const idx = state.items.findIndex((i) => i.id === action.payload.id);
+      if (idx >= 0) {
+        state.items[idx] = action.payload;
+      }
+    });
   },
 });
 

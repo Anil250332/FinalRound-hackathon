@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import {
   verifyHandoverOtp,
   clearOtpError,
   setSelectedTransfer,
+  fetchHospitalTransfers,
+  verifyHandoverOtpApi,
 } from '../../store/slices/transferSlice';
 import { addAuditLog, addNotification } from '../../store/slices/notificationSlice';
 import { StatusBadge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { SkeletonCard, Skeleton } from '../../components/common/Skeleton';
 import { Transfer } from '../../types';
 import {
   Truck,
@@ -25,8 +28,14 @@ import {
 
 export const TransferTrackingPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { transfers, otpError } = useAppSelector((state) => state.transfer);
+  const { transfers, otpError, isLoading } = useAppSelector((state) => state.transfer);
   const { currentUser } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (currentUser?.hospitalId) {
+      dispatch(fetchHospitalTransfers(currentUser.hospitalId));
+    }
+  }, [dispatch, currentUser?.hospitalId]);
 
   const [otpModalTransfer, setOtpModalTransfer] = useState<Transfer | null>(null);
   const [enteredOtp, setEnteredOtp] = useState('');
@@ -47,6 +56,13 @@ export const TransferTrackingPage: React.FC = () => {
         verifyHandoverOtp({
           transferId: otpModalTransfer.id,
           enteredOtp,
+        })
+      );
+
+      dispatch(
+        verifyHandoverOtpApi({
+          transferId: otpModalTransfer.id,
+          otp: enteredOtp,
         })
       );
 

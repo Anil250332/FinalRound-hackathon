@@ -1,6 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { EmergencyRequest, Offer, RequestStatus } from '../../types';
 import { INITIAL_REQUESTS } from '../../services/mockData';
+import { apiService } from '../../services/apiService';
 
 interface EmergencyState {
   requests: EmergencyRequest[];
@@ -8,6 +9,8 @@ interface EmergencyState {
   filterStatus: RequestStatus | 'ALL';
   filterUrgency: 'ALL' | 'CRITICAL' | 'URGENT' | 'NORMAL';
   isBroadcasting: boolean;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: EmergencyState = {
@@ -16,13 +19,67 @@ const initialState: EmergencyState = {
   filterStatus: 'ALL',
   filterUrgency: 'ALL',
   isBroadcasting: false,
+  isLoading: false,
+  error: null,
 };
+
+// Async Thunks
+export const fetchEmergencyRequests = createAsyncThunk(
+  'emergency/fetchEmergencyRequests',
+  async (_, { rejectWithValue }) => {
+    try {
+      const requests = await apiService.getEmergencyRequests();
+      return requests;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to fetch emergency requests');
+    }
+  }
+);
+
+export const createEmergencyRequestApi = createAsyncThunk(
+  'emergency/createEmergencyRequestApi',
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const newReq = await apiService.createEmergencyRequest(data);
+      return newReq;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to create emergency request');
+    }
+  }
+);
+
+export const submitOfferApi = createAsyncThunk(
+  'emergency/submitOfferApi',
+  async (data: { requestId: string; offeredUnits: number; notes?: string }, { rejectWithValue }) => {
+    try {
+      const offer = await apiService.submitOffer(data);
+      return { requestId: data.requestId, offer };
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to submit offer');
+    }
+  }
+);
+
+export const acceptOfferApi = createAsyncThunk(
+  'emergency/acceptOfferApi',
+  async ({ offerId, requestingHospitalId }: { offerId: string; requestingHospitalId: string }, { rejectWithValue }) => {
+    try {
+      const result = await apiService.acceptOffer(offerId, requestingHospitalId);
+      return result;
+    } catch (err: any) {
+      return rejectWithValue(err.message || 'Failed to accept offer');
+    }
+  }
+);
 
 export const emergencySlice = createSlice({
   name: 'emergency',
   initialState,
   reducers: {
-    createRequest: (state, action: PayloadAction<Omit<EmergencyRequest, 'id' | 'requestId' | 'allocatedUnits' | 'status' | 'offers' | 'createdAt' | 'updatedAt'>>) => {
+    createRequest: (
+      state,
+      action: PayloadAction<Omit<EmergencyRequest, 'id' | 'requestId' | 'allocatedUnits' | 'status' | 'offers' | 'createdAt' | 'updatedAt'>>
+    ) => {
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       const newReq: EmergencyRequest = {
         id: `req-${Date.now()}`,
@@ -37,7 +94,10 @@ export const emergencySlice = createSlice({
       state.requests.unshift(newReq);
       state.selectedRequest = newReq;
     },
-    submitOffer: (state, action: PayloadAction<{ requestId: string; offer: Omit<Offer, 'id' | 'offeredAt' | 'status'> }>) => {
+    submitOffer: (
+      state,
+      action: PayloadAction<{ requestId: string; offer: Omit<Offer, 'id' | 'offeredAt' | 'status'> }>
+    ) => {
       const request = state.requests.find((r) => r.id === action.payload.requestId);
       if (request) {
         const newOffer: Offer = {
@@ -110,6 +170,66 @@ export const emergencySlice = createSlice({
     setFilterUrgency: (state, action: PayloadAction<'ALL' | 'CRITICAL' | 'URGENT' | 'NORMAL'>) => {
       state.filterUrgency = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    // Fetch requests
+    builder.addCase(fetchEmergencyRequests.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchEmergencyRequests.fulfilled, (state, action) => {
+      state.isLoading = false;
+      if (action.payload && action.payload.length > 0) {
+        state.requests = action.payload;
+        if (!state.selectedRequest || !action.payload.some((r) => r.id === state.selectedRequest?.id)) {
+          state.selectedRequest = action.payload[0] || null;
+        }
+      }
+    });
+    builder.addCase(fetchEmergencyRequests.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload as string;
+    });
+
+    // Create request
+    builder.addCase(createEmergencyRequestApi.pending, (state) => {
+      state.isBroadcasting = true;
+    });
+    builder.addCase(createEmergencyRequestApi.fulfilled, (state, action) => {
+      state.isBroadcasting = false;
+      state.requests.unshift(action.payload);
+      state.selectedRequest = action.payload;
+    });
+    builder.addCase(createEmergencyRequestApi.rejected, (state, action) => {
+      state.isBroadcasting = false;
+      state.error = action.payload as string;
+    });
+
+    // Submit offer
+    builder.addCase(submitOfferApi.fulfilled, (state, action) => {
+      const req = state.requests.find((r) => r.id === action.payload.requestId);
+      if (req) {
+        req.offers.push(action.payload.offer);
+        if (req.status === 'SEARCHING') {
+          req.status = 'OFFERS_RECEIVED';
+        }
+        if (state.selectedRequest?.id === req.id) {
+          state.selectedRequest = { ...req };
+        }
+      }
+    });
+
+    // Accept offer
+    builder.addCase(acceptOfferApi.fulfilled, (state, action) => {
+      const { request } = action.payload;
+      const idx = state.requests.findIndex((r) => r.id === request.id);
+      if (idx >= 0) {
+        state.requests[idx] = request;
+        if (state.selectedRequest?.id === request.id) {
+          state.selectedRequest = request;
+        }
+      }
+    });
   },
 });
 
