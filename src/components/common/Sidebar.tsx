@@ -53,7 +53,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
           { name: 'Dashboard', path: '/hospital-admin/overview', icon: LayoutDashboard },
           { name: 'User Management', path: '/hospital-admin/users', icon: Users },
           { name: 'Hospital Inventory', path: '/hospital-admin/inventory', icon: Droplet },
-          { name: 'Emergency Requests', path: '/hospital-admin/emergency-requests', icon: Radio },
+          { name: 'Incoming Requests', path: '/hospital-admin/incoming-requests', icon: Inbox },
+          { name: 'Raised by Us', path: '/hospital-admin/raised-requests', icon: Radio },
           { name: 'Hospital Profile', path: '/hospital-admin/profile', icon: Building },
         ];
       case 'BLOOD_BANK_OFFICER':
@@ -61,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
         return [
           { name: 'Officer Dashboard', path: '/blood-bank/overview', icon: LayoutDashboard },
           { name: 'Blood Inventory', path: '/blood-bank/inventory', icon: Droplet },
-          { name: 'Network Emergency', path: '/blood-bank/network-requests', icon: Inbox },
-          { name: 'Create & My Requests', path: '/blood-bank/my-requests', icon: PlusCircle },
+          { name: 'Incoming Requests', path: '/blood-bank/incoming-requests', icon: Inbox },
+          { name: 'Raised by Us', path: '/blood-bank/my-requests', icon: PlusCircle },
         ];
     }
   };

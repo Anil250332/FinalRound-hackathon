@@ -76,7 +76,7 @@ export const HospitalOverviewPage: React.FC = () => {
 
         <div className="flex items-center space-x-3 flex-wrap gap-y-2">
           <button
-            onClick={() => navigate('/hospital-admin/emergency-requests')}
+            onClick={() => navigate('/hospital-admin/raised-requests')}
             className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-rose-600/20 transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <Radio className="w-4 h-4" />
@@ -177,7 +177,7 @@ export const HospitalOverviewPage: React.FC = () => {
               <p className="text-xs text-slate-400 mt-0.5">Urgent broadcasts seeking help across hospitals</p>
             </div>
             <button
-              onClick={() => navigate('/hospital-admin/emergency-requests')}
+              onClick={() => navigate('/hospital-admin/incoming-requests')}
               className="text-xs font-bold text-[#0d9488] hover:text-[#0f766e] flex items-center gap-1 cursor-pointer"
             >
               <span>View All</span>

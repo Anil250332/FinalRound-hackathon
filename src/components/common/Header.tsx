@@ -40,13 +40,15 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
 
     if (path.includes('/hospital-admin/users') || path.includes('/hospital-admin/staff')) return 'Hospital User Management';
     if (path.includes('/hospital-admin/inventory')) return 'Hospital Blood Stock Ledger';
-    if (path.includes('/hospital-admin/emergency-requests')) return 'Emergency Requests & Responses';
+    if (path.includes('/hospital-admin/incoming-requests')) return 'Incoming Emergency Requests';
+    if (path.includes('/hospital-admin/raised-requests') || path.includes('/hospital-admin/my-requests')) return 'Raised by Us (Emergency Requests)';
+    if (path.includes('/hospital-admin/emergency-requests')) return 'Hospital Emergency Requests';
     if (path.includes('/hospital-admin/profile')) return 'Hospital Profile';
     if (path.includes('/hospital-admin/overview')) return 'Hospital Operational Overview';
 
     if (path.includes('/blood-bank/inventory')) return 'Blood Bank Inventory';
-    if (path.includes('/blood-bank/network-requests') || path.includes('/blood-bank/incoming-requests')) return 'Network Emergency Alerts (Accept Request)';
-    if (path.includes('/blood-bank/my-requests') || path.includes('/blood-bank/create-request')) return 'Create Request & Inter-Hospital Connections';
+    if (path.includes('/blood-bank/incoming-requests') || path.includes('/blood-bank/network-requests')) return 'Incoming Emergency Requests (Accept)';
+    if (path.includes('/blood-bank/my-requests') || path.includes('/blood-bank/create-request')) return 'Raised by Us (Broadcast & Connections)';
     if (path.includes('/blood-bank/overview')) return 'Blood Bank Officer Dashboard';
 
     return 'Dashboard';

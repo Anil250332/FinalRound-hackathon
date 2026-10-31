@@ -21,7 +21,8 @@ import { AdminProfilePage } from '../pages/super-admin/AdminProfilePage';
 import { HospitalOverviewPage } from '../pages/hospital-admin/HospitalOverviewPage';
 import { StaffManagementPage } from '../pages/hospital-admin/StaffManagementPage';
 import { HospitalInventoryPage } from '../pages/hospital-admin/HospitalInventoryPage';
-import { HospitalEmergencyPage } from '../pages/hospital-admin/HospitalEmergencyPage';
+import { HospitalIncomingRequestsPage } from '../pages/hospital-admin/HospitalIncomingRequestsPage';
+import { HospitalRaisedRequestsPage } from '../pages/hospital-admin/HospitalRaisedRequestsPage';
 import { HospitalProfilePage } from '../pages/hospital-admin/HospitalProfilePage';
 
 // Blood Bank Officer Pages
@@ -68,7 +69,10 @@ export const AppRoutes: React.FC = () => {
         <Route path="/hospital-admin/users" element={<StaffManagementPage />} />
         <Route path="/hospital-admin/staff" element={<StaffManagementPage />} />
         <Route path="/hospital-admin/inventory" element={<HospitalInventoryPage />} />
-        <Route path="/hospital-admin/emergency-requests" element={<HospitalEmergencyPage />} />
+        <Route path="/hospital-admin/incoming-requests" element={<HospitalIncomingRequestsPage />} />
+        <Route path="/hospital-admin/raised-requests" element={<HospitalRaisedRequestsPage />} />
+        <Route path="/hospital-admin/my-requests" element={<HospitalRaisedRequestsPage />} />
+        <Route path="/hospital-admin/emergency-requests" element={<HospitalIncomingRequestsPage />} />
         <Route path="/hospital-admin/profile" element={<HospitalProfilePage />} />
 
         {/* 3. Blood Bank Officer Dashboard Routes */}
